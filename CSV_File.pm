@@ -5,63 +5,54 @@ use warnings;
 
 require Exporter;
 
+use Data::Dumper;
 use Tie::Array;
 use Text::CSV_XS;
 use Tie::File;
 use Params::Validate qw/:all/;
+use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.12';
-
+our $VERSION = '0.13';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
-our @EXPORT = qw/TAB_SEPARATED            TAB_SEPERATED
-                 COLON_SEPARATED          COLON_SEPERATED
-                 SEMICOLON_SEPARATED      SEMICOLON_SEPERATED
-                 PIPE_SEPARATED           PIPE_SEPERATED
-                 WHITESPACE_SEPARATED     WHITESPACE_SEPERATED/;
+sub __mispell($) {
+    my $s = $_;
+    $s =~ s/(?<=SEP)A(?=RATED)/E/;
+    return $s;
+}
 
-use constant TAB_SEPARATED => (
-     sep_char     => "\t",
+# Export all predefined file types
+our @EXPORT = map {($_, __mispell $_)}
+              map {$_ . "_SEPARATED"}
+              qw/TAB COLON SEMICOLON PIPE WHITESPACE/;
+
+use constant SPLIT_SEPARATED_STANDARD_OPTIONS => (
      quote_char   => undef,
      eol          => undef, # default
      escape_char  => undef,
      always_quote => 0     # default
 );
-*TAB_SEPERATED = *TAB_SEPARATED;
-#       ^                ^        you see the differences
 
-use constant COLON_SEPARATED => (
-     sep_char     => ":",
-     quote_char   => undef,
-     eol          => undef, # default
-     escape_char  => undef,
-     always_quote => 0     # default
+use constant SEPARATOR_CHARS => (
+    [TAB       => "\t"],
+    [COLON     => ":"],
+    [SEMICOLON => ";"],
+    [PIPE      => "|"]
 );
-*COLON_SEPERATED = *COLON_SEPARATED;
-#         ^                  ^        you see the differences
 
-use constant SEMICOLON_SEPARATED => (
-     sep_char     => ";",
-     quote_char   => undef,
-     eol          => undef, # default
-     escape_char  => undef,
-     always_quote => 0     # default
-);
-*SEMICOLON_SEPERATED = *SEMICOLON_SEPARATED;
-#             ^                      ^        you see the differences
-
-use constant PIPE_SEPARATED => (
-     sep_char     => "|",
-     quote_char   => undef,
-     eol          => undef, # default
-     escape_char  => undef,
-     always_quote => 0     # default
-);
-*PIPE_SEPERATED = *PIPE_SEPARATED;
-#        ^                 ^        you see the differences
+# Create typical file format constants,
+# only different on their seperator chars
+foreach (SEPARATOR_CHARS) {     
+    my ($name, $char) = @$_;
+    $name .= "_SEPARATED";
+    eval "use constant $name => (sep_char => \$char, 
+                                 SPLIT_SEPARATED_STANDARD_OPTIONS)";
+    (my $name_with_spelling_mistake = $name) =~ s/(?<=SEP)A(?=RATED)/E/;
+    eval "*$name_with_spelling_mistake = *$name";
+};
 
 use constant WHITESPACE_SEPARATED => (
      sep_re       => qr/\s+/,
@@ -72,18 +63,32 @@ use constant WHITESPACE_SEPARATED => (
      always_quote => 0     # default
 );
 *WHITESPACE_SEPERATED = *WHITESPACE_SEPARATED;
-#              ^                       ^        you see the differences
+#              ^                       ^        you see the difference
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
+    
+    # Parameter validation
     my %options = validate( @_, {
         quote_char   => {default => q/"/,  type => SCALAR | UNDEF},
-        eol          => {default => undef, type => SCALAR | UNDEF},
+        eol          => {default => undef,    type => SCALAR | UNDEF},
         sep_char     => {default => q/,/,  type => SCALAR | UNDEF},
         sep_re       => {default => undef, isa  => 'Regexp'},
         escape_char  => {default => q/"/,  type => SCALAR | UNDEF},
         always_quote => {default => 0,     type => SCALAR | UNDEF}
     });
+    
+    # Check for some cases to warn
+    unless( defined $options{sep_char} ) {
+        carp "The sep_char should either be defined or not mentioned, ".
+             "but I got something like sep_char => undef\n" .
+             "It's interpreted as the default value ',' (a comma)!";
+        $options{sep_char} = ',';
+    }
+    unless ( (my $l = length $options{sep_char}) == 1) {
+        carp "The sep_char should have a length of 1, not $l"
+    }
+    
     tie my @lines, 'Tie::File', $fname or die "Can't open $fname: $!";
     my $self = {
         lines   => \@lines,
@@ -101,11 +106,8 @@ sub FETCHSIZE {
 
 sub FETCH {
     my ($self, $line_nr) = @_;
-    tie my @fields, 'Tie::CSV_File::Line', 
-        $self->{lines}, $line_nr, $self->{"csv"}, 
-                                  $self->{"eol"}, 
-                                  $self->{"sep_char"}, 
-                                  $self->{"sep_re"};
+    my @csv_options = map {$self->{$_}} qw/csv eol sep_char sep_re/;
+    tie my @fields, 'Tie::CSV_File::Line', $self->{lines}, $line_nr, @csv_options;
     return \@fields;
 }
 
@@ -113,7 +115,6 @@ sub STORE {
     my ($self, $line_nr, $columns) = @_;
     my $csv = $self->{csv};
     if (@$columns) {
-        use Data::Dumper;
         $csv->combine(@$columns) or die "Can't store " . Dumper($columns);
         $self->{lines}->[$line_nr] = $csv->string;
     } else {
@@ -168,8 +169,8 @@ sub columns {
                                              # - it won't be catched with split
     } else {
         my $csv    = $self->{csv};
-        push @fields, $csv->fields() if $csv->parse($line);
-        if (my $sep_char = $self->{sep_char}) {
+        $csv->parse($line) and push @fields, $csv->fields();
+        if (defined( my $sep_char = $self->{sep_char} )) {
             push @fields, '' if $line =~ /\Q$sep_char\E$/;
         }
     }
@@ -359,7 +360,8 @@ e.g. generated with C<qr/.../>.
 A simple string produces an error.
 
 Note also, that C<sep_char> is used to write data.
-As the name suggests C<sep_char> can only consists of one char.
+As the name suggests C<sep_char> should only consists of one char.
+It gives you a warning if you try something else.
 
 =head2 Predefined file types
 

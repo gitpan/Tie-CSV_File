@@ -10,7 +10,7 @@ use constant WRONG_PARAMETERS => (
     ['/foo/bar/nonsens/nonsens.csv'],
     ['foo.dat', 'unknown option' => 3],
     ['foo.dat', 'eol'    => ['an arrayref']],
-    ['foo.dat', 'sep_re' => "no regexp"]                
+    ['foo.dat', 'sep_re' => "no regexp"],
 );
 
 use Test::More tests => scalar(WRONG_PARAMETERS);

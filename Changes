@@ -1,5 +1,12 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.13  Tue Sep 03
+       - implemented warning,
+         if sep_char contains of more than one character
+       - refacturing of the code
+       - removed sleeping bug,
+         the sep_char '0' (zero) wouldn't have worked
+
 0.12  Mon Aug 26
        - fixed typos: *_SEPERATED  => *_SEPARATED
                            ^               ^

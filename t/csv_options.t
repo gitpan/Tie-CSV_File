@@ -34,8 +34,13 @@ test_option CSV_FILE_COLON_SEPARATED, CSV_DATA(),
             COLON_SEPARATED;            
 test_option SIMPLE_CSV_FILE_WHITESPACE_SEPARATED, SIMPLE_CSV_DATA(), 
             WHITESPACE_SEPARATED;
-test_option SIMPLE_CSV_FILE_WHITESPACE_SEPARATED, SIMPLE_CSV_DATA(),
+{   
+    local $SIG{__WARN__} = sub { };
+    test_option SIMPLE_CSV_FILE_WHITESPACE_SEPARATED, SIMPLE_CSV_DATA(),
             WHITESPACE_SEPARATED, sep_char => '   ';            
+    # the three whitespaces as sep_char should produce a warning,
+    # but the result must still be O.K.
+}
 test_option SIMPLE_CSV_FILE_COLON_SEPARATED, SIMPLE_CSV_DATA(), 
             COLON_SEPARATED;
 test_option SIMPLE_CSV_FILE_SEMICOLON_SEPARATED, SIMPLE_CSV_DATA(),

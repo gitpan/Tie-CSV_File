@@ -10,3 +10,4 @@ t/wrong_parameter.t
 t/csv_options.t
 t/store.t
 t/delete.t
+t/warn_parameter.t
