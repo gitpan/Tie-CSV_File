@@ -6,7 +6,7 @@ use Tie::CSV_File;
 use File::Temp qw/tmpnam/;
 use Test::More;
 use Test::Exception;
-use t'CommonStuff;
+use t::CommonStuff;
 
 sub test_store_cell($%) {
     my ($expected_csv_text, %option) = @_;
@@ -108,4 +108,4 @@ unlink 'csv.dat';
 
     untie @data;
 }
-
+unlink 'csv.dat';

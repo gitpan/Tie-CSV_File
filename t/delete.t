@@ -5,7 +5,7 @@ use warnings;
 
 use Tie::CSV_File;
 use File::Temp qw/tmpnam/;
-use t'CommonStuff;
+use t::CommonStuff;
 use Test::More;
 use Data::Compare;
 use Data::Dumper;

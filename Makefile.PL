@@ -17,5 +17,7 @@ WriteMakefile(
         'Test::Warn'      => 0.05
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
-      (AUTHOR     => 'Janek Schleicher <bigj@kamelfreund.de>') : ()),
+      (AUTHOR     => 'Janek Schleicher <bigj@kamelfreund.de>',
+       ABSTRACT   => 'ties a csv file to an array of arrays') : ()
+    ),
 );

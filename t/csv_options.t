@@ -5,7 +5,7 @@ use warnings;
 use Tie::CSV_File;
 use File::Temp qw/tempfile tmpnam/;
 use Test::More;
-use t'CommonStuff;
+use t::CommonStuff;
 
 sub test_option($%) {
     my ($expected_csv_text, $data, %option) = @_;

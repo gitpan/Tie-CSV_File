@@ -1,37 +1,45 @@
-Tie/CSV_File version 0.19
+Tie/CSV_File version 0.20
 =========================
 
 Tie::CSV_File - ties a csv-file to an array of arrays
 
 SYNOPSIS
 
-    use Tie::CSV_File;
+  use Tie::CSV_File;
 
-    tie my @data, 'Tie::CSV_File', 'xyz.dat';
-    print "Data in 3rd line, 5th column: ", $data[2][4];
-    untie @data;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat';
+  print "Data in 3rd line, 5th column: ", $data[2][4];
+  untie @data;
   
-    # or to read a tabular, or a whitespace or a (semi-)colon separated file
-    tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPARATED;
-    # or  use instead COLON_SEPARATED, SEMICOLON_SEPARATED, PIPE_SEPARATED,
-    #         or even WHITESPACE_SEPARATED
+  # or to read a tabular, or a whitespace or a (semi-)colon separated file
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPARATED;
+  # or  use instead COLON_SEPARATED, SEMICOLON_SEPARATED, PIPE_SEPARATED,
+  #         or even WHITESPACE_SEPARATED
   
-    # or to read something own defined
-    tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
-                                              sep_re       => qr/\s*\|\s*/,
-                                              quote_char   => undef,
-                                              eol          => undef, # default
-                                              escape_char  => undef,
-                                              always_quote => 0;  # default
+  # or to read something own defined
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
+                                            sep_re       => qr/\s*\|\s*/,
+                                            quote_char   => undef,
+                                            eol          => undef, # default
+                                            escape_char  => undef,
+                                            always_quote => 0;  # default
                                             
-    $data[1][3] = 4;
-    $data[-1][-1] = "last column in last line";
-    
-    $data[0] = [qw/Name Address Country Phone/];
-    push @data, ["Gates", "Redmond",  "Washington", "0800-EVIL"];
-    push @data, ["Linus", "Helsinki", "Finnland",   "0800-LINUX"];
+  $data[1][3] = 4;
+  $data[-1][-1] = "last column in last line";
   
-    delete $data[3][2];
+  $data[0] = [qw/Name Address Country Phone/];
+  push @data, ["Gates", "Redmond",  "Washington", "0800-EVIL"];
+  push @data, ["Linus", "Helsinki", "Finnland",   "0800-LINUX"];
+
+  my @headings = @{ shift @data };     # removes also the first line
+  my @last_row = @{ pop   @data };     # removes also the last line
+
+  @data = [ [1..3], [4..6], [7..9] ];
+  # With default paramaters, 
+  # the following csv file is created:
+  # 1,2,3
+  # 4,5,6
+  # 7,8,9
 
 INSTALLATION
 
@@ -57,6 +65,10 @@ The test routine requires additional these other modules and libraries:
     File::Temp
     Data::Compare
     Test::Warn
+
+Please note that the Text::CSV_XS module needs to be proper installed.
+(It's not enough only to copy the CSV_XS.pm file to the right patch,
+ this module needs to be compiled!)
 
 COPYRIGHT AND LICENCE
 

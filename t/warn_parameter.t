@@ -21,4 +21,6 @@ foreach (WARNING_PARAMETERS) {
                  {carped => $warning_re};
 }
 
+unlink 'foo.csv';
+
 1;

@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -75,7 +75,7 @@ sub TIEARRAY {
     # Parameter validation
     my %options = validate( @_, {
         quote_char   => {default => q/"/,  type => SCALAR | UNDEF},
-        eol          => {default => undef,    type => SCALAR | UNDEF},
+        eol          => {default => undef, type => SCALAR | UNDEF},
         sep_char     => {default => q/,/,  type => SCALAR | UNDEF},
         sep_re       => {default => undef, isa  => 'Regexp'},
         escape_char  => {default => q/"/,  type => SCALAR | UNDEF},
@@ -101,10 +101,14 @@ sub TIEARRAY {
     
     tie my @lines, 'Tie::File', $fname or die "Can't open $fname: $!";
     my $self = {
-        lines   => \@lines,
-        csv     =>  Text::CSV_XS->new(\%options),
-        eol     => $options{eol},
-        sep_re  => $options{sep_re}
+        lines       => \@lines,
+        csv         =>  Text::CSV_XS->new(\%options),
+        quote_char  => $options{quote_char},
+        eol         => $options{eol},
+        sep_char    => $options{sep_char},
+        sep_re      => $options{sep_re},
+        escape_char => $options{escape_char},
+        always_quote=> $options{always_quote},
     };
     bless $self, $class;
 }
@@ -116,7 +120,7 @@ sub FETCHSIZE {
 
 sub FETCH {
     my ($self, $line_nr) = @_;
-    my @csv_options = map {$self->{$_}} qw/csv eol sep_char sep_re/;
+    my @csv_options = map {$self->{$_}} qw/csv eol sep_char sep_re quote_char/;
     tie my @fields, 'Tie::CSV_File::Line', $self->{lines}, $line_nr, @csv_options;
     return \@fields;
 }
@@ -132,6 +136,11 @@ sub STORE {
     }
 }
 
+sub STORESIZE {
+    my ($self, $count) = @_;
+    $#{$self->{lines}} = $count-1;
+}
+
 sub DELETE {
     my ($self, $line_nr) = @_;
     delete $self->{lines}->[$line_nr];
@@ -145,12 +154,12 @@ use warnings;
 use Tie::Array;
 use Text::CSV_XS;
 use Tie::File;
-use Params::Validate qw/:all/;
+use Data::Dumper;
 
 our @ISA = qw(Exporter Tie::Array);
 
 sub TIEARRAY {
-    my ($class, $data, $line_nr, $csv, $eol, $sep_char, $sep_re) = @_;
+    my ($class, $data, $line_nr, $csv, $eol, $sep_char, $sep_re, $quote_char) = @_;
     my $self = bless {
         data     => $data,
         line_nr  => $line_nr,
@@ -158,6 +167,7 @@ sub TIEARRAY {
         eol      => $eol,
         sep_char => $sep_char,
         sep_re   => $sep_re,
+        quote_char => $quote_char,
         fields   => undef
     }, $class;
 }
@@ -167,10 +177,10 @@ sub columns {
     my @fields = ();     # even if there aren't any fields, it's an empty list
     my $line  = $self->{data}->[$self->{line_nr}];
     defined($line) or return $self->{fields} = \@fields;
-    if (my $eol = $self->{eol}) {
+    if (defined( my $eol = $self->{eol} )) {
         $line =~ s/\Q$eol\E$//;
     }
-    if (my $re = $self->{sep_re}) {
+    if (defined( my $re = $self->{sep_re} )) {
         push @fields, 
             map {defined($_) ? $_ : ''}  # empty fields shall be '', not undef
             grep !/$re/,                 # ugly, but needed see downside
@@ -181,11 +191,31 @@ sub columns {
     } else {
         my $csv    = $self->{csv};
         $csv->parse($line) and push @fields, $csv->fields();
-        if (defined( my $sep_char = $self->{sep_char} )) {
-            push @fields, '' if $line =~ /\Q$sep_char\E$/;
-        }
     }
     return $self->{fields} = \@fields;
+}
+
+sub set_new_fields {
+    my ($self, $fields) = @_;
+    $self->{fields} = $fields;
+
+    my $csv_string;
+    if (@$fields == 0) {                             # No columns
+        my $eol = $self->{eol};
+        $csv_string = defined($eol) ? $eol : "";
+    } elsif (@$fields == 1 and $fields->[0] eq '') { # One column with an empty string
+        my $quote_char = $self->{quote_char};
+        my $eol        = $self->{eol};
+        $_ = defined($_) ? $_ : "" 
+            for $eol, $quote_char;
+
+        $csv_string = $quote_char . $quote_char . $eol;
+    } else {                                         # Default 
+        my $csv = $self->{csv};
+        $csv->combine(@$fields) or die "Can't store columns " . Dumper($fields);
+        $csv_string = $csv->string;
+    }
+    $self->{data}->[$self->{line_nr}] = $csv_string;
 }
 
 sub FETCHSIZE {
@@ -200,11 +230,18 @@ sub FETCH {
 
 sub STORE {
     my ($self, $col_nr, $value) = @_;
-    my $csv = $self->{csv};
-    my $col = $self->{fields} || $self->columns;
-    $col->[$col_nr] = $value;
-    $csv->combine( @$col );
-    $self->{data}->[$self->{line_nr}] = $csv->string;
+    my $csv    = $self->{csv};
+    my $fields = $self->{fields} || $self->columns;
+    $fields->[$col_nr] = $value;
+    $self->set_new_fields($fields);
+}
+
+sub STORESIZE {
+    my ($self, $new_size) = @_;
+    my $fields = $self->{fields} || $self->columns;
+    $#$fields    = $new_size-1;         # Set new size => last element is now at
+                                        #                 index  size-1
+    $self->set_new_fields($fields);
 }
 
 sub DELETE {
@@ -246,9 +283,17 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   $data[0] = [qw/Name Address Country Phone/];
   push @data, ["Gates", "Redmond",  "Washington", "0800-EVIL"];
   push @data, ["Linus", "Helsinki", "Finnland",   "0800-LINUX"];
-  
-  delete $data[3][2];
 
+  my @headings = @{ shift @data };     # removes also the first line
+  my @last_row = @{ pop   @data };     # removes also the last line
+
+  @data = [ [1..3], [4..6], [7..9] ];
+  # With default paramaters, 
+  # the following csv file is created:
+  # 1,2,3
+  # 4,5,6
+  # 7,8,9
+  
 =head1 DESCRIPTION
 
 C<Tie::CSV_File> represents a regular csv file as a Perl array of arrays.  
@@ -291,7 +336,13 @@ Note, that it is possible also, to change the data.
   
   $data[0] = ["Last name", "First name", "Address"];
   push @data, ["Schleicher", "Janek", "Germany"];
-  my @header = @{ shift @data };
+  my @header   = @{ shift @data };
+  my @last_row = @{ pop   @data };
+
+You can also assign the content of whole another array to the csv-tied array.
+It has the effect that the content of the other array is copied and it
+B<overwrites> the previous content. However, it's perhaps the easiest way to
+create a csv file :-)
   
 Please pay attention that deleting an array element has a slightly
 different meaning to the normal behaviour.
@@ -306,7 +357,8 @@ A cell of the CSV-File can only be empty ("").
 Undefined values signalizes that the line or the column doesn't exist.
 Especially the lines C<,,,> and C<"","","",""> are the same for
 C<Tie::CSV_File> and the second version could be changed
-without a warning to the first one when you write to the tied array.
+without a warning to the first one (and vice versa if the autoquote option is
+set) when you write to the tied array.
   
 There's only a small part of the whole file in memory,
 so this module will work also for large files.
@@ -339,11 +391,11 @@ Note, that the binary option isn't available.
 In addition to have an easier working with files,
 that aren't separated with different characters,
 e.g. sometimes one whitespace, sometimes more,
-I added the sep_re option (defaults to C<undef>). 
+I added the C<sep_re> option (defaults to C<undef>). 
 
 If it is specified,
-sep_char is ignored when reading,
-instead something similar to split at the sepater is done
+C<sep_char> is ignored when reading,
+instead something similar to split at the separater is done
 to find out the fields.
 
 E.g.,
@@ -432,7 +484,7 @@ It's defined with:
      escape_char  => undef,
      always_quote => 0     # default
 
-Note, that the data isn't allowed to contain any colon.
+Note, that the data isn't allowed to contain any semicolon.
 
 Allthough that looks very similar to CSV files,
 SEMICOLON_SEPARATED doesn't quote data and can't work
@@ -494,14 +546,18 @@ By default these constants are exported:
   WHITESPACE_SEPARATED
 
 (There are also some mispelled versions of these filetypes
- exported, please look at the documentation for predefined file types
- for details).
+exported, please look at the documentation for predefined file types
+for details).
 
 =head1 BUGS
 
 This module is slow,
 even slower than necessary with object oriented features.
 I'll change it when implementing some more features.
+
+The slowest part is perhaps if you C<shift>, C<pop>, C<splice>, ...
+or assign another
+array to the tied array. I'll fix it in some of the very next versions.
 
 This module expects that the tied file doesn't change
 from anywhere else as this module when it is tied.
@@ -511,6 +567,10 @@ Please inform me about every bug or missing feature of this module.
 
 =head1 TODO
 
+Implement efficient routines for C<shift>, C<pop>, C<splice>, C<unshift>, ... .
+
+Enabling deferred writing, similar to L<Tie::File>.
+
 Possibility to give (memory) options at tieing,
 like mode, memory, dw_size
 similar to Tie::File.
@@ -519,14 +579,9 @@ Discuss differences to L<AnyData> module.
 
 Discuss differenced to L<DBD::CSV> module.
 
-Implement binary mode.
-
-Option like C<filter => sub { s/\s+/ / }>
-that would specify a routine called
-before a line is processed.
-Perhaps even process is a sensfull name to this option.
-
-Implement some functions like the splicing a bit more efficient.
+I'm open to many more ideas,
+please inform me about any missing features or 
+occurring problems.
 
 =head1 THANKS
 
@@ -547,7 +602,7 @@ L<DBD::CSV>
 
 =head1 AUTHOR
 
-Janek Schleicher, E<lt>bigj@kamelfreund.de<gt>
+Janek Schleicher, E<lt>bigj@kamelfreund.deE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
