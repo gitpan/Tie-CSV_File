@@ -1,5 +1,8 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.19  Mon Sep 09
+       - implemented internal fields-cache for a Tie::CSV_File::Line
+	
 0.18  Fri Sep 06
        - fixed bug that occured in Perl <= 5.6.1
          the predefined file type constants are created in a loop with eval statements

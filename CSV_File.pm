@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -157,7 +157,8 @@ sub TIEARRAY {
         csv      => $csv,
         eol      => $eol,
         sep_char => $sep_char,
-        sep_re   => $sep_re
+        sep_re   => $sep_re,
+        fields   => undef
     }, $class;
 }
 
@@ -165,7 +166,7 @@ sub columns {
     my $self = shift;
     my @fields = ();     # even if there aren't any fields, it's an empty list
     my $line  = $self->{data}->[$self->{line_nr}];
-    defined($line) or return \@fields;
+    defined($line) or return $self->{fields} = \@fields;
     if (my $eol = $self->{eol}) {
         $line =~ s/\Q$eol\E$//;
     }
@@ -184,26 +185,25 @@ sub columns {
             push @fields, '' if $line =~ /\Q$sep_char\E$/;
         }
     }
-    return \@fields;
-
+    return $self->{fields} = \@fields;
 }
 
 sub FETCHSIZE {
     my ($self) = @_;
-    return scalar( @{$self->columns} );
+    return scalar( @{$self->{fields} || $self->columns} );
 }
 
 sub FETCH {
     my ($self, $col_nr) = @_;
-    $self->columns->[$col_nr];
+    ($self->{fields} || $self->columns)->[$col_nr];
 }
 
 sub STORE {
     my ($self, $col_nr, $value) = @_;
     my $csv = $self->{csv};
-    my @col = @{ $self->columns };
-    $col[$col_nr] = $value;
-    $csv->combine( @col );
+    my $col = $self->{fields} || $self->columns;
+    $col->[$col_nr] = $value;
+    $csv->combine( @$col );
     $self->{data}->[$self->{line_nr}] = $csv->string;
 }
 
