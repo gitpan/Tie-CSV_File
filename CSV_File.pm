@@ -14,14 +14,13 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
 sub __mispell($) {
-    my $s = $_;
-    $s =~ s/(?<=SEP)A(?=RATED)/E/;
-    return $s;
+    shift =~ /^(.*_SEP)A(RATED)/;
+    return "$1E$2";
 }
 
 # Export all predefined file types

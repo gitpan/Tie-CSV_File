@@ -1,5 +1,11 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.15  Wed Sep 04
+       - fixed bug,
+         forgot to export the *_SEPARATED file types
+                                   ^
+         (reason was that I wanted even with and without mispelled forms to export,
+          but the routine for "mispelling" also changed the original word)
 0.14  Wed Sep 04
        - fixed forgotten dependency:
          added Test::Warn to the (test) requirements
