@@ -21,29 +21,11 @@ sub test_option($%) {
     untie @data;
 }
 
-use constant TAB_SEPERATED_OPT => (
-    sep_char     => "\t",
-    quote_char   => undef,
-    eol          => undef,
-    escape_char  => undef,
-    always_quote => 0
-);
 
-use constant SPLIT_SEPERATED_OPT => (
-    sep_char     => '|',
-    sep_re       => qr/\s*\|\s*/,
-    quote_char   => undef,
-    eol          => undef,
-    escape_char  => undef,
-    always_quote => 0,
-);
+use Test::More tests => scalar(CSV_FILES);
 
-use Test::More tests => 7;
-
-test_option CSV_FILE_QUOTE_IS_SLASH,      quote_char   => '/';
-test_option CSV_FILE_EOL_IS_EOL,          eol          => 'EOL';
-test_option CSV_FILE_SEP_IS_SLASH,        sep_char     => '/';
-test_option CSV_FILE_ESCAPE_IS_BACKSLASH, escape_char  => '\\';
-test_option CSV_FILE_ALWAYS_QUOTE,        always_quote => 1;
-test_option CSV_FILE_TAB_SEPERATED,       TAB_SEPERATED_OPT;
-test_option CSV_FILE_SPLIT_SEPERATED,     SPLIT_SEPERATED_OPT;
+foreach (CSV_FILES) {
+    my @option   = @{$_->[0]};
+    my $csv_text = $_->[1];
+    test_option $csv_text, @option;
+}

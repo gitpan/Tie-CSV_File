@@ -14,7 +14,7 @@ our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
@@ -43,22 +43,82 @@ sub FETCHSIZE {
 
 sub FETCH {
     my ($self, $line_nr) = @_;
-    my $line   = $self->{lines}->[$line_nr];
-    if (defined($line) and my $eol = $self->{eol}) {
+    tie my @fields, 'Tie::CSV_File::Line', 
+        $self->{lines}, $line_nr, $self->{"csv"}, 
+                                  $self->{"eol"}, 
+                                  $self->{"sep_char"}, 
+                                  $self->{"sep_re"};
+    return \@fields;
+}
+
+package Tie::CSV_File::Line;
+
+use strict;
+use warnings;
+
+use Tie::Array;
+use Text::CSV_XS;
+use Tie::File;
+use Params::Validate qw/:all/;
+
+our @ISA = qw(Exporter Tie::Array);
+
+sub TIEARRAY {
+    my ($class, $data, $line_nr, $csv, $eol, $sep_char, $sep_re) = @_;
+    my $self = bless {
+        data     => $data,
+        line_nr  => $line_nr,
+        csv      => $csv,
+        eol      => $eol,
+        sep_char => $sep_char,
+        sep_re   => $sep_re
+    }, $class;
+}
+
+sub columns {
+    my $self = shift;
+    my @fields = ();     # even if there aren't any fields, it's an empty list
+    my $line  = $self->{data}->[$self->{line_nr}];
+    defined($line) or return \@fields;
+    if (my $eol = $self->{eol}) {
         $line =~ s/\Q$eol\E$//;
     }
-    my @fields = ();     # even if there aren't any fields, it's an empty list
     if (my $re = $self->{sep_re}) {
         push @fields, 
             map {defined($_) ? $_ : ''}  # empty fields shall be '', not undef
             grep !/$re/,                 # ugly, but needed see downside
             split /($re)/, $line;        # needed, as perl has problems with 
                                          # split /x/,"xxxxxxxxxx"; or similar
+        push @fields, '' if $line =~ /$re$/; # needed when the last element is empty 
+                                             # - it won't be catched with split
     } else {
         my $csv    = $self->{csv};
         push @fields, $csv->fields() if $csv->parse($line);
+        if (my $sep_char = $self->{sep_char}) {
+            push @fields, '' if $line =~ /\Q$sep_char\E$/;
+        }
     }
     return \@fields;
+
+}
+
+sub FETCHSIZE {
+    my ($self) = @_;
+    return scalar( @{$self->columns} );
+}
+
+sub FETCH {
+    my ($self, $col_nr) = @_;
+    $self->columns->[$col_nr];
+}
+
+sub STORE {
+    my ($self, $col_nr, $value) = @_;
+    my $csv = $self->{csv};
+    my @col = @{ $self->columns };
+    $col[$col_nr] = $value;
+    $csv->combine( @col );
+    $self->{data}->[$self->{line_nr}] = $csv->string;
 }
 
 1;
@@ -85,14 +145,16 @@ Tie::CSV_File - ties a csv-file to an array of arrays
                                         
   # or to read a simple white space seperated file
   tie my @data, 'Tie::File', 'xyz.dat', sep_re       => qr/\s+/,
+                                        sep_char     => ' ',
                                         quote_char   => undef,
                                         eol          => undef, # default
                                         escape_char  => undef,
                                         always_quote => 0;     # default
   
-  [NOT YET IMPLEMENTED]
   $data[1][3] = 4;
   $data[-1][-1] = "last column in last line";
+  
+  [NOT YET IMPLEMENTED]
   push @data, [qw/Jan Feb Mar/];
   delete $data[3][2];
 
@@ -130,7 +192,21 @@ we can say
 
   !defined $data[$x][$y] # for every $x > 3, $y any 
   
-Note, that it isn't possible yet to change the data.
+Note, that it is possible also, to change the data.
+At the moment it's only tested to work with direct access:
+
+  $data[0][0]   = "first line, first column";
+  $data[3][7]   = "anywhere in the world";
+  $data[-1][-1] = "last line, last column";
+  
+It's not yet implemented yet to have another access:
+
+  [NOT IMPLEMENTED YET]
+  $data[0] = ["Last name", "First name", "Address"];
+  push @data, ["Schleicher", "Janek", "Germany"];
+  my @header = @{ shift @data };
+  
+But it will be implemented soon.
 
 There's only a small part of the whole file in memory,
 so this module will work also for large files.
@@ -193,13 +269,15 @@ Note, that the value of sep_re must be a regexp object,
 e.g. generated with C<qr/.../>.
 A simple string produces an error.
 
+Note also, that sep_char is used to write data.
+
 =head2 EXPORT
 
 None by default.
 
 =head1 TODO
 
-Implement a writable array of arrays.
+Implement the missing features for indirect writable access.
 
 Possibility to give (memory) options at tieing,
 like mode, memory, dw_size
@@ -212,6 +290,9 @@ that would specify a routine called
 before a line is processed.
 Perhaps even process is a sensfull name to this option.
 
+Create constants for tabulator seperated, whitespace seperated, ... files.
+
+Warn if sep_char isn't matched with a specified sep_re.
 
 =head1 SEE ALSO
 

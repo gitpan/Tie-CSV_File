@@ -85,8 +85,35 @@ Gera   | 150000         | wouldn't agree
 Zeits  | not really     | a bit better than in war
        | 0              | in Nirvana you can't really live | believe me
 
-||||||
+|||||
 CSV
+
+use constant TAB_SEPERATED_OPT => (
+    sep_char     => "\t",
+    quote_char   => undef,
+    eol          => undef,
+    escape_char  => undef,
+    always_quote => 0
+);
+
+use constant SPLIT_SEPERATED_OPT => (
+    sep_char     => '|',
+    sep_re       => qr/\s*\|\s*/,
+    quote_char   => undef,
+    eol          => undef,
+    escape_char  => undef,
+    always_quote => 0,
+);
+
+use constant CSV_FILES => (
+  [ [] => CSV_FILE ],
+  [ [quote_char   => '/']      => CSV_FILE_QUOTE_IS_SLASH      ],
+  [ [eol          => 'EOL']    => CSV_FILE_EOL_IS_EOL          ],
+  [ [sep_char     => '/']      => CSV_FILE_SEP_IS_SLASH        ],
+  [ [escape_char  => '\\']     => CSV_FILE_ESCAPE_IS_BACKSLASH ],
+  [ [TAB_SEPERATED_OPT]        => CSV_FILE_TAB_SEPERATED       ],
+  [ [SPLIT_SEPERATED_OPT]      => CSV_FILE_SPLIT_SEPERATED     ]
+);
 
 1;
 __END__

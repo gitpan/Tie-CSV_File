@@ -1,5 +1,9 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.06  Thu Aug 01
+       - implemented STORE possibility
+         $data[$line][$column] = $something
+
 0.05  Wed Jul 31
        - implemented option
          sep_re     => ...
