@@ -1,0 +1,49 @@
+Tie/CSV_File version 0.01
+=========================
+
+SYNOPSIS
+
+  use Tie::CSV_File;
+
+  tie my @data, 'Tie::File', 'xyz.dat';
+  
+  print "Data in 3rd line, 5th column: ", $data[2][4];
+  
+  untie @data;
+  
+  [NOT YET IMPLEMENTED]
+  $data[1][3] = 4;
+  $data[-1][-1] = "last column in last line";
+  push @data, [qw/Jan Feb Mar/];
+  delete $data[3][2];
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+    Text::CSV_XS
+    Tie::File
+
+The test routine requires additional these other modules and libraries:
+
+    Test::Exception
+    Test::More
+    File::Temp
+
+COPYRIGHT AND LICENCE
+
+Put the correct copyright and licence information here.
+
+Copyright (C) 2002 Janek Schleicher
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
