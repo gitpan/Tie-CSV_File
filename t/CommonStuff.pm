@@ -1,0 +1,82 @@
+use constant CSV_DATA => [
+    ['City',  'Inhabitants', 'Nice to live'],
+    ['Jena',  100_000,       'Definitly "yes"'],
+    ['Gera',  150_000,       'wouldn\'t agree'],
+    ['Zeits', 'not really',  'a bit better than in war'],
+    ['',      0,             'in Nirvana you can\'t really live', 'believe me'],
+    [],
+    [('') x 6]
+];
+
+use constant CSV_FILE => <<'CSV';
+City,Inhabitants,"Nice to live"
+Jena,100000,"Definitly ""yes"""
+Gera,150000,"wouldn't agree"
+Zeits,"not really","a bit better than in war"
+,0,"in Nirvana you can't really live","believe me"
+
+,,,,,
+CSV
+
+use constant CSV_FILE_QUOTE_IS_SLASH => <<'CSV';
+City,Inhabitants,/Nice to live/
+Jena,100000,/Definitly ""yes""/
+Gera,150000,/wouldn't agree/
+Zeits,/not really/,/a bit better than in war/
+,0,/in Nirvana you can't really live/,/believe me/
+
+,,,,,
+CSV
+
+use constant CSV_FILE_EOL_IS_EOL => <<'CSV';
+City,Inhabitants,"Nice to live"EOL
+Jena,100000,"Definitly ""yes"""EOL
+Gera,150000,"wouldn't agree"EOL
+Zeits,"not really","a bit better than in war"EOL
+,0,"in Nirvana you can't really live","believe me"EOL
+EOL
+,,,,,EOL
+CSV
+
+use constant CSV_FILE_SEP_IS_SLASH => <<'CSV';
+City/Inhabitants/"Nice to live"
+Jena/100000/"Definitly ""yes"""
+Gera/150000/"wouldn't agree"
+Zeits/"not really"/"a bit better than in war"
+/0/"in Nirvana you can't really live"/"believe me"
+
+/////
+CSV
+
+use constant CSV_FILE_ESCAPE_IS_BACKSLASH => <<'CSV';
+City,Inhabitants,"Nice to live"
+Jena,100000,"Definitly \"yes\""
+Gera,150000,"wouldn't agree"
+Zeits,"not really","a bit better than in war"
+,0,"in Nirvana you can't really live","believe me"
+
+,,,,,
+CSV
+
+use constant CSV_FILE_ALWAYS_QUOTE => <<'CSV';
+"City","Inhabitants","Nice to live"
+"Jena","100000","Definitly ""yes"""
+"Gera","150000","wouldn't agree"
+"Zeits","not really","a bit better than in war"
+"","0","in Nirvana you can't really live","believe me"
+
+"","","","","",
+CSV
+
+use constant CSV_FILE_TAB_SEPERATED => <<"CSV";
+City\tInhabitants\tNice to live
+Jena\t100000\tDefinitly "yes"
+Gera\t150000\twouldn't agree
+Zeits\tnot really\ta bit better than in war
+\t0\tin Nirvana you can't really live\tbelieve me
+
+\t\t\t\t\t
+CSV
+
+1;
+__END__

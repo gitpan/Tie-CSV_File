@@ -1,4 +1,4 @@
-use 5.008;
+use 5.006;
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -8,8 +8,9 @@ WriteMakefile(
     'PREREQ_PM'		=> {
         'Text::CSV_XS'    => 0,
         'Tie::File'       => 0,
+        'Params::Validate'=> 0,
         
-        'Test::Exception' => 0,
+        'Test::Exception' => 0,    # for the tests
         'Test::More'      => 0,
         'File::Temp'      => 0
     }, # e.g., Module::Name => 1.1

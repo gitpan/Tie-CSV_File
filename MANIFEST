@@ -4,5 +4,7 @@ Makefile.PL
 MANIFEST
 README
 t/1.t
+t/CommonStuff.pm
 t/fetch.t
 t/wrong_parameter.t
+t/csv_options.t

@@ -1,5 +1,13 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.02  Tue Jul 30
+       - implemented CSV options
+         quote_char   => ...
+         eol          => ...
+         escape_char  => ...
+         always_quote => ...
+       - removed dependancy of Perl 5.8.0 of the Makefile.PL
+
 0.01  Mon Jul 29 
        - implemented read-only tied Tie::CSV_File without any options
 

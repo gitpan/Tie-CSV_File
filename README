@@ -1,4 +1,4 @@
-Tie/CSV_File version 0.01
+Tie/CSV_File version 0.02
 =========================
 
 SYNOPSIS
@@ -6,10 +6,16 @@ SYNOPSIS
   use Tie::CSV_File;
 
   tie my @data, 'Tie::File', 'xyz.dat';
-  
   print "Data in 3rd line, 5th column: ", $data[2][4];
-  
   untie @data;
+  
+    # or to read a tabular seperated file
+  tie my @data, 'Tie::File', 'xyz.dat', sep_char     => "\t",
+                                        quote_char   => undef,
+                                        eol          => undef, # default
+                                        escape_char  => undef,
+                                        always_quote => 0;     # default
+
   
   [NOT YET IMPLEMENTED]
   $data[1][3] = 4;
@@ -32,6 +38,7 @@ This module requires these other modules and libraries:
 
     Text::CSV_XS
     Tie::File
+    Params::Validate
 
 The test routine requires additional these other modules and libraries:
 

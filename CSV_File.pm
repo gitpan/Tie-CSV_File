@@ -8,19 +8,28 @@ require Exporter;
 use Tie::Array;
 use Text::CSV_XS;
 use Tie::File;
+use Params::Validate qw/:all/;
 
 our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub TIEARRAY {
-    my ($class, $fname) = @_;
+    my ($class, $fname) = (shift(), shift());
+    my %options = validate( @_, {
+        quote_char   => {default => q/"/,  type => SCALAR | UNDEF},
+        eol          => {default => undef, type => SCALAR | UNDEF},
+        sep_char     => {default => q/,/,  type => SCALAR | UNDEF},
+        escape_char  => {default => q/"/,  type => SCALAR | UNDEF},
+        always_quote => {default => 0,     type => SCALAR | UNDEF}
+    });
     tie my @lines, 'Tie::File', $fname or die "Can't open $fname: $!";
     my $self = {
         lines => \@lines,
-        csv   =>  Text::CSV_XS->new()
+        csv   =>  Text::CSV_XS->new(\%options),
+        eol   => $options{eol}
     };
     bless $self, $class;
 }
@@ -33,7 +42,10 @@ sub FETCHSIZE {
 sub FETCH {
     my ($self, $line_nr) = @_;
     my $line   = $self->{lines}->[$line_nr];
-    my $csv = $self->{csv};
+    if (my $eol = $self->{eol}) {
+        $line =~ s/\Q$eol\E$//;
+    }
+    my $csv    = $self->{csv};
     $csv->parse($line)
         ?   do { my @fields = $csv->fields();
                  return \@fields
@@ -53,10 +65,15 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   use Tie::CSV_File;
 
   tie my @data, 'Tie::File', 'xyz.dat';
-  
   print "Data in 3rd line, 5th column: ", $data[2][4];
-  
   untie @data;
+  
+  # or to read a tabular seperated file
+  tie my @data, 'Tie::File', 'xyz.dat', sep_char     => "\t",
+                                        quote_char   => undef,
+                                        eol          => undef, # default
+                                        escape_char  => undef,
+                                        always_quote => 0;     # default
   
   [NOT YET IMPLEMENTED]
   $data[1][3] = 4;
@@ -109,6 +126,25 @@ But it won't work with large fields,
 as all fields of one line are parsed,
 even if you only want to get one field.
 
+=head2 CSV options for tieing
+
+Similar to C<Text::CSV_XS>,
+you can add the following options:
+
+=over
+
+=item  quote_char   {default: "}
+=item  eol          {default: undef},
+=item  sep_char     {default: ,}
+=item  escape_char  {default: "}
+=item  always_quote {default: 0}
+
+=back
+
+Please read the documentation of L<Text::CSV_XS> for details.
+
+Note, that the binary option isn't available.
+
 =head2 EXPORT
 
 None by default.
@@ -117,8 +153,16 @@ None by default.
 
 Implement a writable array of arrays.
 
-Possibility to give options at tieing,
-like quote_char, esc_char, sep_char, binary, mode, memory, dw_size.
+Possibility to give (memory) options at tieing,
+like mode, memory, dw_size
+similar to Tie::File.
+
+Implement binary mode.
+
+Option like sep_re,
+so you could specify
+sep_re = qr/\s+/,
+and would have an easily way to read files.
 
 =head1 SEE ALSO
 
