@@ -5,7 +5,6 @@ use warnings;
 
 use Tie::CSV_File;
 use Test::Exception;
-use Test::Warn;
 
 use Test::More tests => 3;
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.03  Tue Jul 30
+       - fixed bug: removed 'use Test::Warn' from a test script as I didn't need it
+                    but forced an error
+
 0.02  Tue Jul 30
        - implemented CSV options
          quote_char   => ...

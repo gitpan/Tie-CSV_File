@@ -14,7 +14,7 @@ our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
