@@ -1,5 +1,9 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.14  Wed Sep 04
+       - fixed forgotten dependency:
+         added Test::Warn to the (test) requirements
+
 0.13  Tue Sep 03
        - implemented warning,
          if sep_char contains of more than one character

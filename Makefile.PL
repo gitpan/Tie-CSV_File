@@ -13,7 +13,8 @@ WriteMakefile(
         'Test::Exception' => 0,    # for the tests
         'Test::More'      => 0,
         'File::Temp'      => 0,
-        'Data::Compare'   => 0
+        'Data::Compare'   => 0,
+        'Test::Warn'      => 0.05
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (AUTHOR     => 'Janek Schleicher <bigj@kamelfreund.de>') : ()),

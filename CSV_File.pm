@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -486,14 +486,6 @@ By default these constants are exported:
 
 =head1 BUGS
 
-The indirect write methods like
-C<push @data, [1, 2]>,
-C<push @{$data[3]}, ["a", "b"]> or
-similar to slices aren't tested directly.
-I hope that the implementation of L<Tie::Array> is
-good enough for it.
-It will be tested extensivly with the future versions.
-
 This module is slow,
 even slower than necessary with object oriented features.
 I'll change it when implementing some more features.
@@ -521,8 +513,7 @@ that would specify a routine called
 before a line is processed.
 Perhaps even process is a sensfull name to this option.
 
-Warn if sep_char isn't matched with a specified sep_re or
-if sep_char consists of more than one character.
+Warn if sep_char isn't matched with the specified sep_re.
 
 =head1 THANKS
 
