@@ -16,9 +16,10 @@ our @ISA = qw(Exporter Tie::Array);
 our @EXPORT = qw/TAB_SEPERATED
                  COLON_SEPERATED
                  SEMICOLON_SEPERATED
+                 PIPE_SEPERATED
                  WHITESPACE_SEPERATED/;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use constant TAB_SEPERATED => (
      sep_char     => "\t",
@@ -38,6 +39,14 @@ use constant COLON_SEPERATED => (
 
 use constant SEMICOLON_SEPERATED => (
      sep_char     => ";",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+);
+
+use constant PIPE_SEPERATED => (
+     sep_char     => "|",
      quote_char   => undef,
      eol          => undef, # default
      escape_char  => undef,
@@ -195,12 +204,11 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   print "Data in 3rd line, 5th column: ", $data[2][4];
   untie @data;
   
-  # or to read a tabular, or a whitespace or a colon seperated file
+  # or to read a tabular, or a whitespace or a (semi-)colon seperated file
   tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', SEMICOLON_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
-
+  # or  use instead COLON_SEPERATED, SEMICOLON_SEPERATED, PIPE_SEPERATED,
+  #         or even WHITESPACE_SEPERATED
+  
   # or to read something own defined
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
                                             sep_re       => qr/\s*\|\s*/,
@@ -398,6 +406,18 @@ just write
 
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char => ";";
 
+=item PIPE_SEPERATED
+
+It's defined with:
+
+     sep_char     => "|",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+
+Note, that the data isn't allowed to contain any pipe delimeter.
+
 =item WHITESPACE_SEPERATED
 
 It's defined with:
@@ -434,6 +454,7 @@ By default these constants are exported:
   TAB_SEPERATED
   COLON_SEPERATED
   SEMICOLON_SEPERATED
+  PIPE_SEPERATED
   WHITESPACE_SEPERATED
 
 =head1 BUGS

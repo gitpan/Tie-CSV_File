@@ -1,4 +1,4 @@
-Tie/CSV_File version 0.10
+Tie/CSV_File version 0.11
 =========================
 
 SYNOPSIS
@@ -11,9 +11,8 @@ SYNOPSIS
   
   # or to read a tabular, or a whitespace or a colon seperated file
   tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', SEMICOLON_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
+  # or  use instead COLON_SEPERATED, SEMICOLON_SEPERATED, PIPE_SEPERATED,
+  #         or even WHITESPACE_SEPERATED
 
   # or to read something own defined
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',

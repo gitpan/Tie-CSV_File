@@ -20,7 +20,7 @@ sub test_option($%) {
 }
 
 
-use Test::More tests => scalar(CSV_FILES) + 7;
+use Test::More tests => scalar(CSV_FILES) + 8;
 
 foreach (CSV_FILES) {
     my @option   = @{$_->[0]};
@@ -40,6 +40,8 @@ test_option SIMPLE_CSV_FILE_COLON_SEPERATED, SIMPLE_CSV_DATA(),
             COLON_SEPERATED;
 test_option SIMPLE_CSV_FILE_SEMICOLON_SEPERATED, SIMPLE_CSV_DATA(),
             SEMICOLON_SEPERATED;
+test_option SIMPLE_CSV_FILE_PIPE_SEPERATED, SIMPLE_CSV_DATA(),
+            PIPE_SEPERATED;
 
 sub _written_content(@) {
     my $file = tmpnam();

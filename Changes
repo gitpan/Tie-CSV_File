@@ -1,5 +1,9 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.11  Mon Aug 19
+       - added constand defining pipe seperated data
+         * PIPE_SEPERATED
+
 0.10  Fri Aug 16
        - added constant defining semicolon-seperated data
          * SEMICOLON_SEPERATED

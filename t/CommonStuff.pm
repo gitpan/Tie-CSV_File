@@ -153,6 +153,12 @@ It;doesn't;matter;how;many;whitespaces;seperate;them
 as;more;than;one;is;in;general;one
 CSV
 
+use constant SIMPLE_CSV_FILE_PIPE_SEPERATED => <<'CSV';
+These|simple|CSV|Data|is|only|seperated|with|whitespaces
+It|doesn't|matter|how|many|whitespaces|seperate|them
+as|more|than|one|is|in|general|one
+CSV
+
 
 1;
 __END__
