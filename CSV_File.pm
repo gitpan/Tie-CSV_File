@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -125,6 +125,11 @@ sub FETCH {
     return \@fields;
 }
 
+sub EXISTS {
+    my ($self, $line_nr) = @_;
+    exists $self->{lines}->[$line_nr];
+}
+
 sub STORE {
     my ($self, $line_nr, $columns) = @_;
     my $csv = $self->{csv};
@@ -228,6 +233,11 @@ sub FETCH {
     ($self->{fields} || $self->columns)->[$col_nr];
 }
 
+sub EXISTS {
+    my ($self, $col_nr) = @_;
+    exists( ($self->{fields} || $self->columns)->[$col_nr] );
+}
+
 sub STORE {
     my ($self, $col_nr, $value) = @_;
     my $csv    = $self->{csv};
@@ -321,13 +331,18 @@ we can say
   
   $data[1][0] eq "last field"
   
-  @{$data[1]}  # is an empty list ()
-  !defined $data[1][0]
+  @{$data[2]}  # is an empty list ()
+  !defined $data[2][0]
 
-  $data[2][0] eq "the above line is empty"
+  $data[3][0] eq "the above line is empty"
 
   !defined $data[$x][$y] # for every $x > 3, $y any 
-  
+
+Similar every row from C<0 .. $#data> exists. (Even if some of them have never
+been set explicitly). The same principle works also for the columns (every
+between the first and the last defined one exists for each row). So, belonging
+to this module, the C<defined> method and the C<exists> operator are equivalent.
+
 Note, that it is possible also, to change the data.
 
   $data[0][0]   = "first line, first column";
@@ -568,6 +583,8 @@ Please inform me about every bug or missing feature of this module.
 =head1 TODO
 
 Implement efficient routines for C<shift>, C<pop>, C<splice>, C<unshift>, ... .
+
+Avoid using L<Text::CSV_XS> if none is installed.
 
 Enabling deferred writing, similar to L<Tie::File>.
 

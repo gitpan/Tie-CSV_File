@@ -1,5 +1,10 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.21  Mon May 12, 2003
+       - implemented exists operation
+       - added Test::ManyParams to the (test) requirements 
+       - fixed a bug from the documentation
+
 0.20  Tue May 08, 2003
        - fixed bug,
          rows with exactly one column containing an empty space

@@ -1,4 +1,4 @@
-Tie/CSV_File version 0.20
+Tie/CSV_File version 0.21
 =========================
 
 Tie::CSV_File - ties a csv-file to an array of arrays
@@ -65,6 +65,7 @@ The test routine requires additional these other modules and libraries:
     File::Temp
     Data::Compare
     Test::Warn
+    Test::ManyParams
 
 Please note that the Text::CSV_XS module needs to be proper installed.
 (It's not enough only to copy the CSV_XS.pm file to the right patch,
