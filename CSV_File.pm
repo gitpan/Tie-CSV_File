@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -76,6 +76,8 @@ sub TIEARRAY {
         escape_char  => {default => q/"/,  type => SCALAR | UNDEF},
         always_quote => {default => 0,     type => SCALAR | UNDEF}
     });
+    
+    $options{binary} = 1;   # to handle with 'ä','ö','ü' and so on, not for "\n"
     
     # Check for some cases to warn
     unless( defined $options{sep_char} ) {

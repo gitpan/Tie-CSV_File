@@ -1,5 +1,10 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.16  Thu Sep 05
+       - fixed problems with special character like 'ä','ö','ü'
+         these lines were skipped, as they were treated as binary data,
+         but the CSV module didn't expect to get "binary" data!
+
 0.15  Wed Sep 04
        - fixed bug,
          forgot to export the *_SEPARATED file types

@@ -6,7 +6,7 @@ use constant CSV_DATA => [
     ['Jena',  100_000,       'Definitly "yes"'],
     ['Gera',  150_000,       'wouldn\'t agree'],
     ['Zeits', 'not really',  'a bit better than in war'],
-    ['',      0,             'in Nirvana you can\'t really live', 'believe me'],
+    ['',      0,             'in Nirvana you äh can\'t really live', 'believe me'],
     [],
     [('') x 6]
 ];
@@ -16,7 +16,7 @@ City,Inhabitants,"Nice to live"
 Jena,100000,"Definitly ""yes"""
 Gera,150000,"wouldn't agree"
 Zeits,"not really","a bit better than in war"
-,0,"in Nirvana you can't really live","believe me"
+,0,"in Nirvana you äh can't really live","believe me"
 
 ,,,,,
 CSV
@@ -26,7 +26,7 @@ City,Inhabitants,/Nice to live/
 Jena,100000,/Definitly ""yes""/
 Gera,150000,/wouldn't agree/
 Zeits,/not really/,/a bit better than in war/
-,0,/in Nirvana you can't really live/,/believe me/
+,0,/in Nirvana you äh can't really live/,/believe me/
 
 ,,,,,
 CSV
@@ -36,7 +36,7 @@ City,Inhabitants,"Nice to live"EOL
 Jena,100000,"Definitly ""yes"""EOL
 Gera,150000,"wouldn't agree"EOL
 Zeits,"not really","a bit better than in war"EOL
-,0,"in Nirvana you can't really live","believe me"EOL
+,0,"in Nirvana you äh can't really live","believe me"EOL
 EOL
 ,,,,,EOL
 CSV
@@ -46,7 +46,7 @@ City/Inhabitants/"Nice to live"
 Jena/100000/"Definitly ""yes"""
 Gera/150000/"wouldn't agree"
 Zeits/"not really"/"a bit better than in war"
-/0/"in Nirvana you can't really live"/"believe me"
+/0/"in Nirvana you äh can't really live"/"believe me"
 
 /////
 CSV
@@ -56,7 +56,7 @@ City,Inhabitants,"Nice to live"
 Jena,100000,"Definitly \"yes\""
 Gera,150000,"wouldn't agree"
 Zeits,"not really","a bit better than in war"
-,0,"in Nirvana you can't really live","believe me"
+,0,"in Nirvana you äh can't really live","believe me"
 
 ,,,,,
 CSV
@@ -66,7 +66,7 @@ use constant CSV_FILE_ALWAYS_QUOTE => <<'CSV';
 "Jena","100000","Definitly ""yes"""
 "Gera","150000","wouldn't agree"
 "Zeits","not really","a bit better than in war"
-"","0","in Nirvana you can't really live","believe me"
+"","0","in Nirvana you äh can't really live","believe me"
 
 "","","","","",
 CSV
@@ -76,7 +76,7 @@ City\tInhabitants\tNice to live
 Jena\t100000\tDefinitly "yes"
 Gera\t150000\twouldn't agree
 Zeits\tnot really\ta bit better than in war
-\t0\tin Nirvana you can't really live\tbelieve me
+\t0\tin Nirvana you äh can't really live\tbelieve me
 
 \t\t\t\t\t
 CSV
@@ -86,7 +86,7 @@ City:Inhabitants:Nice to live
 Jena:100000:Definitly "yes"
 Gera:150000:wouldn't agree
 Zeits:not really:a bit better than in war
-:0:in Nirvana you can't really live:believe me
+:0:in Nirvana you äh can't really live:believe me
 
 :::::
 CSV
@@ -97,7 +97,7 @@ City   | Inhabitants    | Nice to live
 Jena   | 100000         | Definitly "yes"
 Gera   | 150000         | wouldn't agree
 Zeits  | not really     | a bit better than in war
-       | 0              | in Nirvana you can't really live | believe me
+       | 0              | in Nirvana you äh can't really live | believe me
 
 |||||
 CSV
