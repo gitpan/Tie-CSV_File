@@ -78,5 +78,15 @@ Zeits\tnot really\ta bit better than in war
 \t\t\t\t\t
 CSV
 
+use constant CSV_FILE_SPLIT_SEPERATED => <<"CSV";
+City   | Inhabitants    | Nice to live
+Jena   | 100000         | Definitly "yes"
+Gera   | 150000         | wouldn't agree
+Zeits  | not really     | a bit better than in war
+       | 0              | in Nirvana you can't really live | believe me
+
+||||||
+CSV
+
 1;
 __END__

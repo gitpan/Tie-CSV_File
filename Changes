@@ -1,5 +1,9 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.05  Wed Jul 31
+       - implemented option
+         sep_re     => ...
+
 0.04  Wed Jul 31
        - changed code to avoid bug in 5.6.1,
          instead of returning an anonymous [] from a tied array

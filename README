@@ -1,4 +1,4 @@
-Tie/CSV_File version 0.04
+Tie/CSV_File version 0.05
 =========================
 
 SYNOPSIS
@@ -9,13 +9,19 @@ SYNOPSIS
   print "Data in 3rd line, 5th column: ", $data[2][4];
   untie @data;
   
-    # or to read a tabular seperated file
+  # or to read a tabular seperated file
   tie my @data, 'Tie::File', 'xyz.dat', sep_char     => "\t",
                                         quote_char   => undef,
                                         eol          => undef, # default
                                         escape_char  => undef,
                                         always_quote => 0;     # default
 
+  # or to read a simple white space seperated file
+  tie my @data, 'Tie::File', 'xyz.dat', sep_re       => qr/\s+/,
+                                        quote_char   => undef,
+                                        eol          => undef, # default
+                                        escape_char  => undef,
+                                        always_quote => 0;     # default
   
   [NOT YET IMPLEMENTED]
   $data[1][3] = 4;
@@ -47,8 +53,6 @@ The test routine requires additional these other modules and libraries:
     File::Temp
 
 COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
 
 Copyright (C) 2002 Janek Schleicher
 

@@ -14,7 +14,7 @@ our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
@@ -22,14 +22,16 @@ sub TIEARRAY {
         quote_char   => {default => q/"/,  type => SCALAR | UNDEF},
         eol          => {default => undef, type => SCALAR | UNDEF},
         sep_char     => {default => q/,/,  type => SCALAR | UNDEF},
+        sep_re       => {default => undef, isa  => 'Regexp'},
         escape_char  => {default => q/"/,  type => SCALAR | UNDEF},
         always_quote => {default => 0,     type => SCALAR | UNDEF}
     });
     tie my @lines, 'Tie::File', $fname or die "Can't open $fname: $!";
     my $self = {
-        lines => \@lines,
-        csv   =>  Text::CSV_XS->new(\%options),
-        eol   => $options{eol}
+        lines   => \@lines,
+        csv     =>  Text::CSV_XS->new(\%options),
+        eol     => $options{eol},
+        sep_re  => $options{sep_re}
     };
     bless $self, $class;
 }
@@ -42,12 +44,20 @@ sub FETCHSIZE {
 sub FETCH {
     my ($self, $line_nr) = @_;
     my $line   = $self->{lines}->[$line_nr];
-    if (my $eol = $self->{eol}) {
+    if (defined($line) and my $eol = $self->{eol}) {
         $line =~ s/\Q$eol\E$//;
     }
-    my $csv    = $self->{csv};
     my @fields = ();     # even if there aren't any fields, it's an empty list
-    push @fields, $csv->fields() if $csv->parse($line);
+    if (my $re = $self->{sep_re}) {
+        push @fields, 
+            map {defined($_) ? $_ : ''}  # empty fields shall be '', not undef
+            grep !/$re/,                 # ugly, but needed see downside
+            split /($re)/, $line;        # needed, as perl has problems with 
+                                         # split /x/,"xxxxxxxxxx"; or similar
+    } else {
+        my $csv    = $self->{csv};
+        push @fields, $csv->fields() if $csv->parse($line);
+    }
     return \@fields;
 }
 
@@ -68,6 +78,13 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   
   # or to read a tabular seperated file
   tie my @data, 'Tie::File', 'xyz.dat', sep_char     => "\t",
+                                        quote_char   => undef,
+                                        eol          => undef, # default
+                                        escape_char  => undef,
+                                        always_quote => 0;     # default
+                                        
+  # or to read a simple white space seperated file
+  tie my @data, 'Tie::File', 'xyz.dat', sep_re       => qr/\s+/,
                                         quote_char   => undef,
                                         eol          => undef, # default
                                         escape_char  => undef,
@@ -143,6 +160,39 @@ Please read the documentation of L<Text::CSV_XS> for details.
 
 Note, that the binary option isn't available.
 
+In addition to have an easier working with files,
+that aren't seperated with different characters,
+e.g. sometimes one whitespace, sometimes more,
+I added the sep_re option (defaults to C<undef>). 
+
+If it is specified,
+sep_char is ignored when reading,
+instead something similar to split at the sepater is done
+to find out the fields.
+
+E.g.,
+you can say
+
+  tie my @data, 'Tie::File', 'xyz.dat', sep_re       => qr/\s+/,
+                                        quote_char   => undef,
+                                        eol          => undef, # default
+                                        escape_char  => undef,
+                                        always_quote => 0;     # default
+                                        
+to read something like
+
+    PID TTY          TIME CMD
+ 1200 pts/0    00:00:00 bash
+ 1221 pts/0    00:00:01 nedit
+ 1224 pts/0    00:00:01 nedit
+ 1228 pts/0    00:00:06 nedit
+ 1318 pts/0    00:00:01 nedit
+ 1605 pts/0    00:00:00 ps
+
+Note, that the value of sep_re must be a regexp object,
+e.g. generated with C<qr/.../>.
+A simple string produces an error.
+
 =head2 EXPORT
 
 None by default.
@@ -157,10 +207,11 @@ similar to Tie::File.
 
 Implement binary mode.
 
-Option like sep_re,
-so you could specify
-sep_re = qr/\s+/,
-and would have an easily way to read files.
+Option like C<filter => sub { s/\s+/ / }>
+that would specify a routine called
+before a line is processed.
+Perhaps even process is a sensfull name to this option.
+
 
 =head1 SEE ALSO
 
