@@ -12,48 +12,58 @@ use Params::Validate qw/:all/;
 
 our @ISA = qw(Exporter Tie::Array);
 
-# nothing to export
-our @EXPORT = qw/TAB_SEPERATED
-                 COLON_SEPERATED
-                 SEMICOLON_SEPERATED
-                 PIPE_SEPERATED
-                 WHITESPACE_SEPERATED/;
+our $VERSION = '0.12';
 
-our $VERSION = '0.11';
 
-use constant TAB_SEPERATED => (
+# There's a common misspelling of sepArated (an E instead of A)
+# That's why all csv file definitions are defined even with an E and an A
+our @EXPORT = qw/TAB_SEPARATED            TAB_SEPERATED
+                 COLON_SEPARATED          COLON_SEPERATED
+                 SEMICOLON_SEPARATED      SEMICOLON_SEPERATED
+                 PIPE_SEPARATED           PIPE_SEPERATED
+                 WHITESPACE_SEPARATED     WHITESPACE_SEPERATED/;
+
+use constant TAB_SEPARATED => (
      sep_char     => "\t",
      quote_char   => undef,
      eol          => undef, # default
      escape_char  => undef,
      always_quote => 0     # default
 );
+*TAB_SEPERATED = *TAB_SEPARATED;
+#       ^                ^        you see the differences
 
-use constant COLON_SEPERATED => (
+use constant COLON_SEPARATED => (
      sep_char     => ":",
      quote_char   => undef,
      eol          => undef, # default
      escape_char  => undef,
      always_quote => 0     # default
 );
+*COLON_SEPERATED = *COLON_SEPARATED;
+#         ^                  ^        you see the differences
 
-use constant SEMICOLON_SEPERATED => (
+use constant SEMICOLON_SEPARATED => (
      sep_char     => ";",
      quote_char   => undef,
      eol          => undef, # default
      escape_char  => undef,
      always_quote => 0     # default
 );
+*SEMICOLON_SEPERATED = *SEMICOLON_SEPARATED;
+#             ^                      ^        you see the differences
 
-use constant PIPE_SEPERATED => (
+use constant PIPE_SEPARATED => (
      sep_char     => "|",
      quote_char   => undef,
      eol          => undef, # default
      escape_char  => undef,
      always_quote => 0     # default
 );
+*PIPE_SEPERATED = *PIPE_SEPARATED;
+#        ^                 ^        you see the differences
 
-use constant WHITESPACE_SEPERATED => (
+use constant WHITESPACE_SEPARATED => (
      sep_re       => qr/\s+/,
      sep_char     => ' ',
      quote_char   => undef,
@@ -61,6 +71,8 @@ use constant WHITESPACE_SEPERATED => (
      escape_char  => undef,
      always_quote => 0     # default
 );
+*WHITESPACE_SEPERATED = *WHITESPACE_SEPARATED;
+#              ^                       ^        you see the differences
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
@@ -204,10 +216,10 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   print "Data in 3rd line, 5th column: ", $data[2][4];
   untie @data;
   
-  # or to read a tabular, or a whitespace or a (semi-)colon seperated file
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
-  # or  use instead COLON_SEPERATED, SEMICOLON_SEPERATED, PIPE_SEPERATED,
-  #         or even WHITESPACE_SEPERATED
+  # or to read a tabular, or a whitespace or a (semi-)colon separated file
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPARATED;
+  # or  use instead COLON_SEPARATED, SEMICOLON_SEPARATED, PIPE_SEPARATED,
+  #         or even WHITESPACE_SEPARATED
   
   # or to read something own defined
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
@@ -314,7 +326,7 @@ Please read the documentation of L<Text::CSV_XS> for details.
 Note, that the binary option isn't available.
 
 In addition to have an easier working with files,
-that aren't seperated with different characters,
+that aren't separated with different characters,
 e.g. sometimes one whitespace, sometimes more,
 I added the sep_re option (defaults to C<undef>). 
 
@@ -352,17 +364,26 @@ As the name suggests C<sep_char> can only consists of one char.
 =head2 Predefined file types
 
 Without any options you define a standard csv file.
-However, tabular seperated, colon seperated and whitespace seperated files
+However, tabular separated, colon separated and whitespace separated files
 are also commonly used, so they are predefined.
 That's why it's possible to say:
 
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
-  tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPARATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPARATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', SEMICOLON_SEPARATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', PIPE_SEPARATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPARATED;
+
+There's a common mistake writing C<SEPARATED>. Often there's written 
+C<SEPERATED> (with an E at the 4th letter instead of an A).
+In fact, up till version 0.11, this module had also this spelling mistake
+implemented. As this module tries to be friendly (and backward compatible), 
+it also accepts the (in this way) mispelled versions of predefined file types.
+Thanks a lot to Harald Fuchs who found this typo.
 
 =over 
 
-=item TAB_SEPERATED
+=item TAB_SEPARATED
 
 It's defined with:
 
@@ -374,7 +395,7 @@ It's defined with:
      
 Note, that the data isn't allowed to contain any tab.
 
-=item COLON_SEPERATED
+=item COLON_SEPARATED
 
 It's defined with:
 
@@ -386,7 +407,7 @@ It's defined with:
 
 Note, that the data isn't allowed to contain any colon.
 
-=item SEMICOLON_SEPERATED
+=item SEMICOLON_SEPARATED
 
 It's defined with:
 
@@ -399,14 +420,14 @@ It's defined with:
 Note, that the data isn't allowed to contain any colon.
 
 Allthough that looks very similar to CSV files,
-SEMICOLON_SEPERATED doesn't quote data and can't work
+SEMICOLON_SEPARATED doesn't quote data and can't work
 properly with quoted data. If you want just a normal
 CSV file with semicolons instead of commas,
 just write
 
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char => ";";
 
-=item PIPE_SEPERATED
+=item PIPE_SEPARATED
 
 It's defined with:
 
@@ -418,7 +439,7 @@ It's defined with:
 
 Note, that the data isn't allowed to contain any pipe delimeter.
 
-=item WHITESPACE_SEPERATED
+=item WHITESPACE_SEPARATED
 
 It's defined with:
 
@@ -437,11 +458,11 @@ all whitespace sequences are transformed to a simple blank.
 =back
 
 Of course, you can overwrite some options.
-E.g., let's assume that you have a whitespace seperated file,
+E.g., let's assume that you have a whitespace separated file,
 but you want to write a tab instead of a blank when changing the data.
 That can be done with:
 
-   tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED, sep_char => "\t";
+   tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPARATED, sep_char => "\t";
 
 
 Please suggest me other useful file types,
@@ -451,11 +472,15 @@ I could predeclare.
 
 By default these constants are exported:
 
-  TAB_SEPERATED
-  COLON_SEPERATED
-  SEMICOLON_SEPERATED
-  PIPE_SEPERATED
-  WHITESPACE_SEPERATED
+  TAB_SEPARATED
+  COLON_SEPARATED
+  SEMICOLON_SEPARATED
+  PIPE_SEPARATED
+  WHITESPACE_SEPARATED
+
+(There are also some mispelled versions of these filetypes
+ exported, please look at the documentation for predefined file types
+ for details).
 
 =head1 BUGS
 
@@ -496,6 +521,15 @@ Perhaps even process is a sensfull name to this option.
 
 Warn if sep_char isn't matched with a specified sep_re or
 if sep_char consists of more than one character.
+
+=head1 THANKS
+
+Thanks a lot to Harald Fuchs,
+who found the typos in
+
+  *_SEPARATED
+       ^
+      (there had been an E instead of an A)
 
 =head1 SEE ALSO
 

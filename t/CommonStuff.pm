@@ -71,7 +71,7 @@ use constant CSV_FILE_ALWAYS_QUOTE => <<'CSV';
 "","","","","",
 CSV
 
-use constant CSV_FILE_TAB_SEPERATED => <<"CSV";
+use constant CSV_FILE_TAB_SEPARATED => <<"CSV";
 City\tInhabitants\tNice to live
 Jena\t100000\tDefinitly "yes"
 Gera\t150000\twouldn't agree
@@ -81,7 +81,7 @@ Zeits\tnot really\ta bit better than in war
 \t\t\t\t\t
 CSV
 
-use constant CSV_FILE_COLON_SEPERATED => <<"CSV";
+use constant CSV_FILE_COLON_SEPARATED => <<"CSV";
 City:Inhabitants:Nice to live
 Jena:100000:Definitly "yes"
 Gera:150000:wouldn't agree
@@ -92,7 +92,7 @@ Zeits:not really:a bit better than in war
 CSV
 
 
-use constant CSV_FILE_SPLIT_SEPERATED => <<"CSV";
+use constant CSV_FILE_SPLIT_SEPARATED => <<"CSV";
 City   | Inhabitants    | Nice to live
 Jena   | 100000         | Definitly "yes"
 Gera   | 150000         | wouldn't agree
@@ -102,7 +102,7 @@ Zeits  | not really     | a bit better than in war
 |||||
 CSV
 
-use constant TAB_SEPERATED_OPT => (
+use constant TAB_SEPARATED_OPT => (
     sep_char     => "\t",
     quote_char   => undef,
     eol          => undef,
@@ -110,7 +110,7 @@ use constant TAB_SEPERATED_OPT => (
     always_quote => 0
 );
 
-use constant SPLIT_SEPERATED_OPT => (
+use constant SPLIT_SEPARATED_OPT => (
     sep_char     => '|',
     sep_re       => qr/\s*\|\s*/,
     quote_char   => undef,
@@ -125,8 +125,8 @@ use constant CSV_FILES => (
   [ [eol          => 'EOL']    => CSV_FILE_EOL_IS_EOL          ],
   [ [sep_char     => '/']      => CSV_FILE_SEP_IS_SLASH        ],
   [ [escape_char  => '\\']     => CSV_FILE_ESCAPE_IS_BACKSLASH ],
-  [ [TAB_SEPERATED_OPT]        => CSV_FILE_TAB_SEPERATED       ],
-  [ [SPLIT_SEPERATED_OPT]      => CSV_FILE_SPLIT_SEPERATED     ],
+  [ [TAB_SEPARATED_OPT]        => CSV_FILE_TAB_SEPARATED       ],
+  [ [SPLIT_SEPARATED_OPT]      => CSV_FILE_SPLIT_SEPARATED     ],
 );
 
 use constant SIMPLE_CSV_DATA => [
@@ -135,25 +135,25 @@ use constant SIMPLE_CSV_DATA => [
     [qw/as more than one is in general one/]
 ];
 
-use constant SIMPLE_CSV_FILE_WHITESPACE_SEPERATED => <<'CSV';
+use constant SIMPLE_CSV_FILE_WHITESPACE_SEPARATED => <<'CSV';
 These simple  CSV    Data is   only        seperated with whitespaces
 It    doesn't matter how  many whitespaces seperate  them
 as    more    than   one  is   in          general   one
 CSV
 
-use constant SIMPLE_CSV_FILE_COLON_SEPERATED => <<'CSV';
+use constant SIMPLE_CSV_FILE_COLON_SEPARATED => <<'CSV';
 These:simple:CSV:Data:is:only:seperated:with:whitespaces
 It:doesn't:matter:how:many:whitespaces:seperate:them
 as:more:than:one:is:in:general:one
 CSV
 
-use constant SIMPLE_CSV_FILE_SEMICOLON_SEPERATED => <<'CSV';
+use constant SIMPLE_CSV_FILE_SEMICOLON_SEPARATED => <<'CSV';
 These;simple;CSV;Data;is;only;seperated;with;whitespaces
 It;doesn't;matter;how;many;whitespaces;seperate;them
 as;more;than;one;is;in;general;one
 CSV
 
-use constant SIMPLE_CSV_FILE_PIPE_SEPERATED => <<'CSV';
+use constant SIMPLE_CSV_FILE_PIPE_SEPARATED => <<'CSV';
 These|simple|CSV|Data|is|only|seperated|with|whitespaces
 It|doesn't|matter|how|many|whitespaces|seperate|them
 as|more|than|one|is|in|general|one

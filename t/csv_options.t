@@ -28,20 +28,20 @@ foreach (CSV_FILES) {
     test_option $csv_text, CSV_DATA(), @option;
 }
 
-test_option CSV_FILE_TAB_SEPERATED, CSV_DATA(), 
-            TAB_SEPERATED;
-test_option CSV_FILE_COLON_SEPERATED, CSV_DATA(),
-            COLON_SEPERATED;            
-test_option SIMPLE_CSV_FILE_WHITESPACE_SEPERATED, SIMPLE_CSV_DATA(), 
-            WHITESPACE_SEPERATED;
-test_option SIMPLE_CSV_FILE_WHITESPACE_SEPERATED, SIMPLE_CSV_DATA(),
-            WHITESPACE_SEPERATED, sep_char => '   ';            
-test_option SIMPLE_CSV_FILE_COLON_SEPERATED, SIMPLE_CSV_DATA(), 
-            COLON_SEPERATED;
-test_option SIMPLE_CSV_FILE_SEMICOLON_SEPERATED, SIMPLE_CSV_DATA(),
-            SEMICOLON_SEPERATED;
-test_option SIMPLE_CSV_FILE_PIPE_SEPERATED, SIMPLE_CSV_DATA(),
-            PIPE_SEPERATED;
+test_option CSV_FILE_TAB_SEPARATED, CSV_DATA(), 
+            TAB_SEPARATED;
+test_option CSV_FILE_COLON_SEPARATED, CSV_DATA(),
+            COLON_SEPARATED;            
+test_option SIMPLE_CSV_FILE_WHITESPACE_SEPARATED, SIMPLE_CSV_DATA(), 
+            WHITESPACE_SEPARATED;
+test_option SIMPLE_CSV_FILE_WHITESPACE_SEPARATED, SIMPLE_CSV_DATA(),
+            WHITESPACE_SEPARATED, sep_char => '   ';            
+test_option SIMPLE_CSV_FILE_COLON_SEPARATED, SIMPLE_CSV_DATA(), 
+            COLON_SEPARATED;
+test_option SIMPLE_CSV_FILE_SEMICOLON_SEPARATED, SIMPLE_CSV_DATA(),
+            SEMICOLON_SEPARATED;
+test_option SIMPLE_CSV_FILE_PIPE_SEPARATED, SIMPLE_CSV_DATA(),
+            PIPE_SEPARATED;
 
 sub _written_content(@) {
     my $file = tmpnam();
@@ -54,9 +54,9 @@ sub _written_content(@) {
     return $content;
 }   
 
-my $c1 = _written_content WHITESPACE_SEPERATED;
-my $c2 = _written_content WHITESPACE_SEPERATED, sep_char => "\t";
+my $c1 = _written_content WHITESPACE_SEPARATED;
+my $c2 = _written_content WHITESPACE_SEPARATED, sep_char => "\t";
 
 $c1 =~ s/ /\t/gs;
 is $c1, $c2, 
-   "Changing the sep_char of WHITESPACE_SEPERATED should change the written content";
+   "Changing the sep_char of WHITESPACE_SEPARATED should change the written content";
