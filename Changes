@@ -1,5 +1,11 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.07  Fri Aug 02
+       - implemened STORE possibility to @data
+         $data[$line] = ["last name", "first name", "CPAN-ID", "address"];
+         push @data, ["Schleicher", "Janek", "BIGJ", "Germany"];
+
+
 0.06  Thu Aug 01
        - implemented STORE possibility
          $data[$line][$column] = $something

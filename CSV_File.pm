@@ -14,7 +14,7 @@ our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
@@ -49,6 +49,18 @@ sub FETCH {
                                   $self->{"sep_char"}, 
                                   $self->{"sep_re"};
     return \@fields;
+}
+
+sub STORE {
+    my ($self, $line_nr, $columns) = @_;
+    my $csv = $self->{csv};
+    if (@$columns) {
+        use Data::Dumper;
+        $csv->combine(@$columns) or die "Can't store " . Dumper($columns);
+        $self->{lines}->[$line_nr] = $csv->string;
+    } else {
+        $self->{lines}->[$line_nr] = $self->{eol} || '';
+    }
 }
 
 package Tie::CSV_File::Line;
@@ -154,8 +166,11 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   $data[1][3] = 4;
   $data[-1][-1] = "last column in last line";
   
+  $data[0] = [qw/Name Address Country Phone/];
+  push @data, ["Gates", "Redmond",  "Washington", "0800-EVIL"];
+  push @data, ["Linus", "Helsinki", "Finnland",   "0800-LINUX"];
+  
   [NOT YET IMPLEMENTED]
-  push @data, [qw/Jan Feb Mar/];
   delete $data[3][2];
 
 =head1 DESCRIPTION
@@ -193,21 +208,18 @@ we can say
   !defined $data[$x][$y] # for every $x > 3, $y any 
   
 Note, that it is possible also, to change the data.
-At the moment it's only tested to work with direct access:
 
   $data[0][0]   = "first line, first column";
   $data[3][7]   = "anywhere in the world";
   $data[-1][-1] = "last line, last column";
   
-It's not yet implemented yet to have another access:
-
-  [NOT IMPLEMENTED YET]
   $data[0] = ["Last name", "First name", "Address"];
   push @data, ["Schleicher", "Janek", "Germany"];
   my @header = @{ shift @data };
   
-But it will be implemented soon.
-
+You can't delete something,
+but it will be implemented soon.
+  
 There's only a small part of the whole file in memory,
 so this module will work also for large files.
 Please look the L<Tie::File> module for any details,
@@ -275,13 +287,31 @@ Note also, that sep_char is used to write data.
 
 None by default.
 
+=head1 BUGS
+
+The indirect write methods like
+C<push @data, [1, 2]>,
+C<push @{$data[3]}, ["a", "b"]> or
+similar to slices aren't tested directly.
+I hope that the implementation of L<Tie::Array> is
+good enough for it.
+It will be tested extensivly with the future versions.
+
+This module is slow,
+even slower than necessary with object oriented features.
+I'll change it when implementing some more features.
+
+Please inform me about every bug or missing feature of this module.
+
 =head1 TODO
 
-Implement the missing features for indirect writable access.
+Implement deleting possibilities.
 
 Possibility to give (memory) options at tieing,
 like mode, memory, dw_size
 similar to Tie::File.
+
+Discuss differences to L<AnyData> module.
 
 Implement binary mode.
 
@@ -299,6 +329,7 @@ Warn if sep_char isn't matched with a specified sep_re.
 L<Tie::File>
 L<Text::CSV>
 L<Text::CSV_XS>
+L<AnyData>
 
 =head1 AUTHOR
 

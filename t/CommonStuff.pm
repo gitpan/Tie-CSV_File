@@ -1,3 +1,6 @@
+use Data::Dumper;
+$Data::Dumper::Indent = undef;
+
 use constant CSV_DATA => [
     ['City',  'Inhabitants', 'Nice to live'],
     ['Jena',  100_000,       'Definitly "yes"'],
