@@ -1,5 +1,12 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.18  Fri Sep 06
+       - fixed bug that occured in Perl <= 5.6.1
+         the predefined file type constants are created in a loop with eval statements
+         seems that Perl <= 5.6.1 needs help to
+         find out that the so exported, but dynamic created statements aren't barewords
+         I enclosed the (dynamic) constant creation with a BEGIN { ... } block.
+
 0.17  Fri Sep 06
        - implemented warning, if the sep_char isn't matched with a specified sep_re
 

@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -44,14 +44,19 @@ use constant SEPARATOR_CHARS => (
 
 # Create typical file format constants,
 # only different on their seperator chars
-foreach (SEPARATOR_CHARS) {     
-    my ($name, $char) = @$_;
-    $name .= "_SEPARATED";
-    eval "use constant $name => (sep_char => \$char, 
-                                 SPLIT_SEPARATED_STANDARD_OPTIONS)";
-    (my $name_with_spelling_mistake = $name) =~ s/(?<=SEP)A(?=RATED)/E/;
-    eval "*$name_with_spelling_mistake = *$name";
-};
+BEGIN {
+    foreach (SEPARATOR_CHARS) {     
+        my ($name, $char) = @$_;
+        $name .= "_SEPARATED";
+        eval "use constant $name => (sep_char => \$char, 
+                                     SPLIT_SEPARATED_STANDARD_OPTIONS)";
+        (my $name_with_spelling_mistake = $name) =~ s/(?<=SEP)A(?=RATED)/E/;
+        eval "*$name_with_spelling_mistake = *$name";
+    };
+}
+# Note that the BEGIN block is necessary for Perl <= 5.6.1
+# otherwise it detects too late the constant creation
+# and signalizes the *_SEPARATED as barewords :-((
 
 use constant WHITESPACE_SEPARATED => (
      sep_re       => qr/\s+/,
