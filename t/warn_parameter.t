@@ -9,7 +9,8 @@ use Test::Warn;
 use constant WARNING_PARAMETERS => (
     [[sep_char => undef], qr/sep_char/i],
     [[sep_char => ''],    qr/sep_char/i],
-    [[sep_char => '  '],  qr/sep_char/i]
+    [[sep_char => '  '],  qr/sep_char/i],
+    [[sep_char => ' ', sep_re => qr/\S/],   qr/sep_char/i]
 );
 
 use Test::More tests => scalar WARNING_PARAMETERS;

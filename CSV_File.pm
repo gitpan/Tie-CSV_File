@@ -14,7 +14,7 @@ use Carp;
 
 our @ISA = qw(Exporter Tie::Array);
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 # There's a common misspelling of sepArated (an E instead of A)
 # That's why all csv file definitions are defined even with an E and an A
@@ -88,6 +88,10 @@ sub TIEARRAY {
     }
     unless ( (my $l = length $options{sep_char}) == 1) {
         carp "The sep_char should have a length of 1, not $l"
+    }
+    if (defined(my $c = $options{sep_char}) && defined(my $r = $options{sep_re})) {
+        carp "The sep_char '$c' is itself not matched by the sep_re '$r'"
+            if $c !~ /$r/;
     }
     
     tie my @lines, 'Tie::File', $fname or die "Can't open $fname: $!";
@@ -364,6 +368,9 @@ Note also, that C<sep_char> is used to write data.
 As the name suggests C<sep_char> should only consists of one char.
 It gives you a warning if you try something else.
 
+If you specify a C<sep_char> and a C<sep_re>,
+you'll get also a warning if sep_char isn't match with sep_re itself.
+
 =head2 Predefined file types
 
 Without any options you define a standard csv file.
@@ -514,7 +521,7 @@ that would specify a routine called
 before a line is processed.
 Perhaps even process is a sensfull name to this option.
 
-Warn if sep_char isn't matched with the specified sep_re.
+Implement some functions like the splicing a bit more efficient.
 
 =head1 THANKS
 
