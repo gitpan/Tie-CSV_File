@@ -1,5 +1,11 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.09  Mon Aug 12
+       - implemented delete possibility
+         * delete $data[5]
+         * delete $data[5][5]
+       - added Data::Compare to the requirements for testing
+
 0.08  Thu Aug 08
        - added constants defining tabular-, white-space- and colon-seperated data
          * TAB_SEPERATED

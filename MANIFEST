@@ -9,3 +9,4 @@ t/fetch.t
 t/wrong_parameter.t
 t/csv_options.t
 t/store.t
+t/delete.t

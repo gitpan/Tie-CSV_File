@@ -1,4 +1,4 @@
-Tie/CSV_File version 0.08
+Tie/CSV_File version 0.09
 =========================
 
 SYNOPSIS
@@ -30,7 +30,6 @@ SYNOPSIS
   push @data, ["Gates", "Redmond",  "Washington", "0800-EVIL"];
   push @data, ["Linus", "Helsinki", "Finnland",   "0800-LINUX"];
   
-  [NOT YET IMPLEMENTED]
   delete $data[3][2];
 
 INSTALLATION
@@ -55,6 +54,7 @@ The test routine requires additional these other modules and libraries:
     Test::Exception
     Test::More
     File::Temp
+    Data::Compare
 
 COPYRIGHT AND LICENCE
 

@@ -17,7 +17,7 @@ our @EXPORT = qw/TAB_SEPERATED
                  COLON_SEPERATED
                  WHITESPACE_SEPERATED/;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use constant TAB_SEPERATED => (
      sep_char     => "\t",
@@ -92,6 +92,11 @@ sub STORE {
     }
 }
 
+sub DELETE {
+    my ($self, $line_nr) = @_;
+    delete $self->{lines}->[$line_nr];
+}
+
 package Tie::CSV_File::Line;
 
 use strict;
@@ -162,6 +167,11 @@ sub STORE {
     $self->{data}->[$self->{line_nr}] = $csv->string;
 }
 
+sub DELETE {
+    my ($self, $col_nr) = @_;
+    $self->STORE($col_nr,"");
+}
+
 1;
 __END__
 
@@ -197,7 +207,6 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   push @data, ["Gates", "Redmond",  "Washington", "0800-EVIL"];
   push @data, ["Linus", "Helsinki", "Finnland",   "0800-LINUX"];
   
-  [NOT YET IMPLEMENTED]
   delete $data[3][2];
 
 =head1 DESCRIPTION
@@ -244,8 +253,20 @@ Note, that it is possible also, to change the data.
   push @data, ["Schleicher", "Janek", "Germany"];
   my @header = @{ shift @data };
   
-You can't delete something,
-but it will be implemented soon.
+Please pay attention that deleting an array element has a slightly
+different meaning to the normal behaviour.
+Deleting an element set the element empty ("" or []),
+but not undef.
+
+  delete $data[5];    # similar to $data[5] = [];
+  delete $data[5][5]; # similar to $data[5][5] = "";
+
+In fact, in a file there is no value undefined.
+A cell of the CSV-File can only be empty ("").
+Undefined values signalizes that the line or the column doesn't exist.
+Especially the lines C<,,,> and C<"","","",""> are the same for
+C<Tie::CSV_File> and the second version could be changed
+without a warning to the first one when you write to the tied array.
   
 There's only a small part of the whole file in memory,
 so this module will work also for large files.
@@ -375,7 +396,7 @@ That can be done with:
 
 
 Please suggest me other useful file types,
-I could predeclar.
+I could predeclare.
 
 =head2 EXPORT
 
@@ -399,17 +420,21 @@ This module is slow,
 even slower than necessary with object oriented features.
 I'll change it when implementing some more features.
 
+This module expects that the tied file doesn't change
+from anywhere else as this module when it is tied.
+But the file isn't locked, so it's your job to take care about.
+
 Please inform me about every bug or missing feature of this module.
 
 =head1 TODO
-
-Implement deleting possibilities.
 
 Possibility to give (memory) options at tieing,
 like mode, memory, dw_size
 similar to Tie::File.
 
 Discuss differences to L<AnyData> module.
+
+Discuss differenced to L<DBD::CSV> module.
 
 Implement binary mode.
 
@@ -427,10 +452,11 @@ L<Tie::File>
 L<Text::CSV>
 L<Text::CSV_XS>
 L<AnyData>
+L<DBD::CSV>
 
 =head1 AUTHOR
 
-Janek Schleicher, E<lt>big@kamelfreund.de<gt>
+Janek Schleicher, E<lt>bigj@kamelfreund.de<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
