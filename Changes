@@ -1,5 +1,11 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.04  Wed Jul 31
+       - changed code to avoid bug in 5.6.1,
+         instead of returning an anonymous [] from a tied array
+         in the first dimension,
+         I return something like my @fields; return \@fields;
+
 0.03  Tue Jul 30
        - fixed bug: removed 'use Test::Warn' from a test script as I didn't need it
                     but forced an error

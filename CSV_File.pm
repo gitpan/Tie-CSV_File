@@ -14,7 +14,7 @@ our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
@@ -46,11 +46,9 @@ sub FETCH {
         $line =~ s/\Q$eol\E$//;
     }
     my $csv    = $self->{csv};
-    $csv->parse($line)
-        ?   do { my @fields = $csv->fields();
-                 return \@fields
-               }
-        :   return [];   # an unparseable part is empty, but not undefined!!
+    my @fields = ();     # even if there aren't any fields, it's an empty list
+    push @fields, $csv->fields() if $csv->parse($line);
+    return \@fields;
 }
 
 1;
