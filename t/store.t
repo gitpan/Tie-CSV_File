@@ -52,7 +52,7 @@ sub _compare_written_to_exp_content($$$$) {
 }
 
 sub test_store_line($%) {
-    my ($expected_csv_text, %option);
+    my ($expected_csv_text, %option) = @_;
     my $csv_name = tmpnam();
     
     tie my @data, 'Tie::CSV_File', $csv_name, %option;

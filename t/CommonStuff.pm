@@ -81,6 +81,17 @@ Zeits\tnot really\ta bit better than in war
 \t\t\t\t\t
 CSV
 
+use constant CSV_FILE_COLON_SEPERATED => <<"CSV";
+City:Inhabitants:Nice to live
+Jena:100000:Definitly "yes"
+Gera:150000:wouldn't agree
+Zeits:not really:a bit better than in war
+:0:in Nirvana you can't really live:believe me
+
+:::::
+CSV
+
+
 use constant CSV_FILE_SPLIT_SEPERATED => <<"CSV";
 City   | Inhabitants    | Nice to live
 Jena   | 100000         | Definitly "yes"
@@ -115,8 +126,27 @@ use constant CSV_FILES => (
   [ [sep_char     => '/']      => CSV_FILE_SEP_IS_SLASH        ],
   [ [escape_char  => '\\']     => CSV_FILE_ESCAPE_IS_BACKSLASH ],
   [ [TAB_SEPERATED_OPT]        => CSV_FILE_TAB_SEPERATED       ],
-  [ [SPLIT_SEPERATED_OPT]      => CSV_FILE_SPLIT_SEPERATED     ]
+  [ [SPLIT_SEPERATED_OPT]      => CSV_FILE_SPLIT_SEPERATED     ],
 );
+
+use constant SIMPLE_CSV_DATA => [
+    [qw/These simple CSV Data is only seperated with whitespaces/],
+    [qw/It doesn't matter how many whitespaces seperate them/],
+    [qw/as more than one is in general one/]
+];
+
+use constant SIMPLE_CSV_FILE_WHITESPACE_SEPERATED => <<'CSV';
+These simple  CSV    Data is   only        seperated with whitespaces
+It    doesn't matter how  many whitespaces seperate  them
+as    more    than   one  is   in          general   one
+CSV
+
+use constant SIMPLE_CSV_FILE_COLON_SEPERATED => <<'CSV';
+These:simple:CSV:Data:is:only:seperated:with:whitespaces
+It:doesn't:matter:how:many:whitespaces:seperate:them
+as:more:than:one:is:in:general:one
+CSV
 
 1;
 __END__
+

@@ -13,8 +13,37 @@ use Params::Validate qw/:all/;
 our @ISA = qw(Exporter Tie::Array);
 
 # nothing to export
+our @EXPORT = qw/TAB_SEPERATED
+                 COLON_SEPERATED
+                 WHITESPACE_SEPERATED/;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
+
+use constant TAB_SEPERATED => (
+     sep_char     => "\t",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+);
+
+use constant COLON_SEPERATED => (
+     sep_char     => ":",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+);
+
+
+use constant WHITESPACE_SEPERATED => (
+     sep_re       => qr/\s+/,
+     sep_char     => ' ',
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+);
 
 sub TIEARRAY {
     my ($class, $fname) = (shift(), shift());
@@ -144,25 +173,23 @@ Tie::CSV_File - ties a csv-file to an array of arrays
 
   use Tie::CSV_File;
 
-  tie my @data, 'Tie::File', 'xyz.dat';
+  tie my @data, 'Tie::CSV_File', 'xyz.dat';
   print "Data in 3rd line, 5th column: ", $data[2][4];
   untie @data;
   
-  # or to read a tabular seperated file
-  tie my @data, 'Tie::File', 'xyz.dat', sep_char     => "\t",
-                                        quote_char   => undef,
-                                        eol          => undef, # default
-                                        escape_char  => undef,
-                                        always_quote => 0;     # default
-                                        
-  # or to read a simple white space seperated file
-  tie my @data, 'Tie::File', 'xyz.dat', sep_re       => qr/\s+/,
-                                        sep_char     => ' ',
-                                        quote_char   => undef,
-                                        eol          => undef, # default
-                                        escape_char  => undef,
-                                        always_quote => 0;     # default
-  
+  # or to read a tabular, or a whitespace or a colon seperated file
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
+
+  # or to read something own defined
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
+                                            sep_re       => qr/\s*\|\s*/,
+                                            quote_char   => undef,
+                                            eol          => undef,
+                                            escape_char  => undef,
+                                            always_quote => 0,
+                                            
   $data[1][3] = 4;
   $data[-1][-1] = "last column in last line";
   
@@ -175,7 +202,7 @@ Tie::CSV_File - ties a csv-file to an array of arrays
 
 =head1 DESCRIPTION
 
-C<Tie::File> represents a regular csv file as a Perl array of arrays.  
+C<Tie::CSV_File> represents a regular csv file as a Perl array of arrays.  
 The first dimension of the represents the line-nr in the original file,
 the second dimension represents the col-nr.
 Both indices are starting with 0.
@@ -261,11 +288,11 @@ to find out the fields.
 E.g.,
 you can say
 
-  tie my @data, 'Tie::File', 'xyz.dat', sep_re       => qr/\s+/,
-                                        quote_char   => undef,
-                                        eol          => undef, # default
-                                        escape_char  => undef,
-                                        always_quote => 0;     # default
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_re       => qr/\s+/,
+                                            quote_char   => undef,
+                                            eol          => undef, # default
+                                            escape_char  => undef,
+                                            always_quote => 0;     # default
                                         
 to read something like
 
@@ -281,11 +308,82 @@ Note, that the value of sep_re must be a regexp object,
 e.g. generated with C<qr/.../>.
 A simple string produces an error.
 
-Note also, that sep_char is used to write data.
+Note also, that C<sep_char> is used to write data.
+As the name suggests C<sep_char> can only consists of one char.
+
+=head2 Predefined file types
+
+Without any options you define a standard csv file.
+However, tabular seperated, colon seperated and whitespace seperated files
+are also commonly used, so they are predefined.
+That's why it's possible to say:
+
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
+
+=over 
+
+=item TAB_SEPERATED
+
+It's defined with:
+
+     sep_char     => "\t",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+     
+Note, that the data isn't allowed to contain any tab.
+
+=item COLON_SEPERATED
+
+It's defined with:
+
+     sep_char     => ":",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+
+Note, that the data isn't allowed to contain any colon.
+
+=item WHITESPACE_SEPERATED
+
+It's defined with:
+
+     sep_re       => qr/\s+/,
+     sep_char     => ' ',
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+
+Note that it reads with splitting at all whitespace sequences.
+Especially it's not possible to define an empty field.
+Note also, that when setting an element,
+all whitespace sequences are transformed to a simple blank.
+
+=back
+
+Of course, you can overwrite some options.
+E.g., let's assume that you have a whitespace seperated file,
+but you want to write a tab instead of a blank when changing the data.
+That can be done with:
+
+   tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED, sep_char => "\t";
+
+
+Please suggest me other useful file types,
+I could predeclar.
 
 =head2 EXPORT
 
-None by default.
+By default these constants are exported:
+
+  TAB_SEPERATED
+  COLON_SEPERATED
+  WHITESPACE_SEPERATED
 
 =head1 BUGS
 
@@ -320,9 +418,8 @@ that would specify a routine called
 before a line is processed.
 Perhaps even process is a sensfull name to this option.
 
-Create constants for tabulator seperated, whitespace seperated, ... files.
-
-Warn if sep_char isn't matched with a specified sep_re.
+Warn if sep_char isn't matched with a specified sep_re or
+if sep_char consists of more than one character.
 
 =head1 SEE ALSO
 

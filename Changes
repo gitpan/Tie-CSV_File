@@ -1,5 +1,13 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.08  Thu Aug 08
+       - added constants defining tabular-, white-space- and colon-seperated data
+         * TAB_SEPERATED
+         * COLON_SEPERATED
+         * WHITE_SPACE_SEPERATED
+       - fixed some typos,
+         where I wrote Tie::File instead of Tie::CSV_File
+
 0.07  Fri Aug 02
        - implemened STORE possibility to @data
          $data[$line] = ["last name", "first name", "CPAN-ID", "address"];
