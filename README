@@ -1,8 +1,7 @@
-Tie/CSV_File version 0.09
+Tie/CSV_File version 0.10
 =========================
 
 SYNOPSIS
-
 
   use Tie::CSV_File;
 
@@ -13,15 +12,16 @@ SYNOPSIS
   # or to read a tabular, or a whitespace or a colon seperated file
   tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
   tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', SEMICOLON_SEPERATED;
   tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
 
   # or to read something own defined
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
                                             sep_re       => qr/\s*\|\s*/,
                                             quote_char   => undef,
-                                            eol          => undef,
+                                            eol          => undef, # default
                                             escape_char  => undef,
-                                            always_quote => 0,
+                                            always_quote => 0;   # default
                                             
   $data[1][3] = 4;
   $data[-1][-1] = "last column in last line";

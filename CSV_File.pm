@@ -15,9 +15,10 @@ our @ISA = qw(Exporter Tie::Array);
 # nothing to export
 our @EXPORT = qw/TAB_SEPERATED
                  COLON_SEPERATED
+                 SEMICOLON_SEPERATED
                  WHITESPACE_SEPERATED/;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use constant TAB_SEPERATED => (
      sep_char     => "\t",
@@ -35,6 +36,13 @@ use constant COLON_SEPERATED => (
      always_quote => 0     # default
 );
 
+use constant SEMICOLON_SEPERATED => (
+     sep_char     => ";",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+);
 
 use constant WHITESPACE_SEPERATED => (
      sep_re       => qr/\s+/,
@@ -190,15 +198,16 @@ Tie::CSV_File - ties a csv-file to an array of arrays
   # or to read a tabular, or a whitespace or a colon seperated file
   tie my @data, 'Tie::CSV_File', 'xyz.dat', TAB_SEPERATED;
   tie my @data, 'Tie::CSV_File', 'xyz.dat', COLON_SEPERATED;
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', SEMICOLON_SEPERATED;
   tie my @data, 'Tie::CSV_File', 'xyz.dat', WHITESPACE_SEPERATED;
 
   # or to read something own defined
   tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char     => '|',
                                             sep_re       => qr/\s*\|\s*/,
                                             quote_char   => undef,
-                                            eol          => undef,
+                                            eol          => undef, # default
                                             escape_char  => undef,
-                                            always_quote => 0,
+                                            always_quote => 0;  # default
                                             
   $data[1][3] = 4;
   $data[-1][-1] = "last column in last line";
@@ -369,6 +378,26 @@ It's defined with:
 
 Note, that the data isn't allowed to contain any colon.
 
+=item SEMICOLON_SEPERATED
+
+It's defined with:
+
+     sep_char     => ";",
+     quote_char   => undef,
+     eol          => undef, # default
+     escape_char  => undef,
+     always_quote => 0     # default
+
+Note, that the data isn't allowed to contain any colon.
+
+Allthough that looks very similar to CSV files,
+SEMICOLON_SEPERATED doesn't quote data and can't work
+properly with quoted data. If you want just a normal
+CSV file with semicolons instead of commas,
+just write
+
+  tie my @data, 'Tie::CSV_File', 'xyz.dat', sep_char => ";";
+
 =item WHITESPACE_SEPERATED
 
 It's defined with:
@@ -404,6 +433,7 @@ By default these constants are exported:
 
   TAB_SEPERATED
   COLON_SEPERATED
+  SEMICOLON_SEPERATED
   WHITESPACE_SEPERATED
 
 =head1 BUGS

@@ -1,5 +1,9 @@
 Revision history for Perl extension Tie::CSV_File.
 
+0.10  Fri Aug 16
+       - added constant defining semicolon-seperated data
+         * SEMICOLON_SEPERATED
+
 0.09  Mon Aug 12
        - implemented delete possibility
          * delete $data[5]
